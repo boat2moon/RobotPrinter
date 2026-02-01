@@ -211,6 +211,8 @@ export function RobotPrinter({
 
   // 切换展开/收起
   const toggle = useCallback(() => {
+    // 加载中不可切换
+    if (loading) return;
     if (phase !== 'idle' && phase !== 'expanded') return;
     
     if (phase === 'idle') {
@@ -218,14 +220,12 @@ export function RobotPrinter({
     } else {
       collapseSequence();
     }
-  }, [phase, expandSequence, collapseSequence]);
+  }, [phase, loading, expandSequence, collapseSequence]);
 
   // 处理点击（区分拖拽和点击）
   const handleClick = useCallback(() => {
-    // 如果刚刚拖拽过，不触发点击
-    if (dragStartRef.current) return;
-    // 加载中时禁止收拢纸条
-    if (loading) return;
+    // 如果刚刚拖拽过或正在加载，不触发点击
+    if (dragStartRef.current || loading) return;
     toggle();
   }, [toggle, loading]);
 
