@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 
 interface EyesProps {
-  /** 眼睛模式：normal=普通模式(会眨眼), loading=加载中(脉冲动画), countdown=倒计时显示 */
+  /** 眼睛模式：normal=普通模式(会眨眼), loading=加载中(脉冲动画,无瞳孔), countdown=倒计时显示 */
   mode?: 'normal' | 'loading' | 'countdown';
   /** 眨眼间隔范围 [最小ms, 最大ms]，仅 normal 模式有效 */
   blinkInterval?: [number, number];
@@ -11,11 +11,13 @@ interface EyesProps {
   lookDirection?: 'left' | 'right' | 'up' | 'down' | null;
   /** 倒计时数字（仅 countdown 模式生效） */
   countdownValue?: number;
+  /** 头部旋转角度（用于倒计时数字反向旋转保持正向显示） */
+  headRotation?: number;
 }
 
 /**
  * 眼睛组件（独立管理眨眼动画）
- * 支持：普通模式眨眼、加载中脉冲、倒计时显示、鼠标跟随、固定注视方向
+ * 支持：普通模式眨眼、加载中脉冲（无瞳孔）、倒计时显示（跨两眼居中）、鼠标跟随
  * 最大偏移量根据眼睛和瞳孔的实际尺寸动态计算
  */
 export function Eyes({ 
@@ -24,6 +26,7 @@ export function Eyes({
   followMouse = true,
   lookDirection = null,
   countdownValue = 0,
+  headRotation = 0,
 }: EyesProps) {
   const [isBlinking, setIsBlinking] = useState(false);
   const [pupilOffset, setPupilOffset] = useState({ x: 0, y: 0 });
@@ -122,28 +125,42 @@ export function Eyes({
   
   const isLoading = mode === 'loading';
   const isCountdown = mode === 'countdown';
-  const eyeClassName = `eye ${isBlinking ? 'blink' : ''} ${isLoading ? 'loading' : ''} ${isCountdown ? 'countdown' : ''}`;
+  const eyeClassName = `eye ${isBlinking ? 'blink' : ''} ${isLoading ? 'loading' : ''} ${isCountdown ? 'countdown-eye' : ''}`;
   
-  const pupilStyle = (!isLoading && !isCountdown) ? {
+  const pupilStyle = !isLoading ? {
     transform: `translate(${pupilOffset.x}px, ${pupilOffset.y}px)`,
   } : {};
   
+  // 倒计时数字反向旋转，保持正向显示
+  const countdownStyle: React.CSSProperties = headRotation !== 0 
+    ? { transform: `rotate(${-headRotation}deg)` }
+    : {};
+  
   return (
-    <div className="eyes-container" ref={eyesRef}>
-      <div className={`${eyeClassName} eye-left`} ref={eyeRef}>
-        {isCountdown ? (
-          <span className="countdown-digit">{countdownValue}</span>
-        ) : (
-          <div className="pupil" style={pupilStyle} ref={pupilRef} />
-        )}
-      </div>
-      <div className={`${eyeClassName} eye-right`}>
-        {isCountdown ? (
-          <span className="countdown-digit">{countdownValue}</span>
-        ) : (
-          <div className="pupil" style={pupilStyle} />
-        )}
-      </div>
+    <div className={`eyes-container ${isCountdown ? 'countdown-mode' : ''}`} ref={eyesRef}>
+      {/* 倒计时模式：跨两眼居中显示一个数字 */}
+      {isCountdown && (
+        <span className="countdown-digit" style={countdownStyle}>
+          {countdownValue}
+        </span>
+      )}
+      
+      {/* 普通/加载模式：两只眼睛 */}
+      {!isCountdown && (
+        <>
+          <div className={`${eyeClassName} eye-left`} ref={eyeRef}>
+            {/* 加载模式不显示瞳孔 */}
+            {!isLoading && (
+              <div className="pupil" style={pupilStyle} ref={pupilRef} />
+            )}
+          </div>
+          <div className={`${eyeClassName} eye-right`}>
+            {!isLoading && (
+              <div className="pupil" style={pupilStyle} />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -775,31 +775,42 @@
   }
 }
 
-/* 倒计时模式 - 显示数字 */
-.eye.countdown {
+/* 倒计时模式 - 眼睛区域整体显示数字 */
+.eyes-container.countdown-mode {
+  /* 整个眼睛区域变为倒计时显示区 */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+  width: 100%;
+  height: 100%;
 }
 
-.countdown-digit {
-  font-size: 14px;
+.eyes-container.countdown-mode .countdown-digit {
+  position: absolute;
+  font-size: 20px;
   font-weight: 700;
   font-family: 'SF Mono', 'Consolas', monospace;
   color: #ffcc00;
   text-shadow: 0 0 8px rgba(255, 204, 0, 0.8);
   animation: countdownPulse 1s ease-in-out infinite;
+  z-index: 10;
+  /* 数字始终保持正向（通过 JS 动态设置 transform） */
+  transition: transform 0.3s ease;
+}
+
+/* 隐藏倒计时模式下的眼睛 */
+.eye.countdown-eye {
+  display: none;
 }
 
 @keyframes countdownPulse {
   0%, 100% {
     opacity: 1;
-    transform: scale(1);
   }
   50% {
-    opacity: 0.7;
-    transform: scale(0.95);
+    opacity: 0.6;
+    text-shadow: 0 0 12px rgba(255, 204, 0, 1);
   }
 }
 

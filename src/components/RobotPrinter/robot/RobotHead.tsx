@@ -108,6 +108,7 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
               blinkInterval={blinkInterval}
               lookDirection={eyeLookDirection}
               countdownValue={countdownValue}
+              headRotation={isRotated ? rotateDirection : 0}
             />
             {/* 嘴巴 */}
             <div 
