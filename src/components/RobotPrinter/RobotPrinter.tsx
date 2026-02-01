@@ -306,10 +306,12 @@ export function RobotPrinter({
 
   // 处理提交
   const handleSubmit = useCallback(() => {
+    // 加载中或倒计时中不可提交
+    if (loading || delay > 0) return;
     if (inputValue.trim()) {
       onSubmit?.(inputValue);
     }
-  }, [inputValue, onSubmit]);
+  }, [inputValue, onSubmit, loading, delay]);
 
   // 计算各部分状态
   const isRotated = ['rotating', 'mouth-opening', 'paper-out', 'expanded', 'paper-in', 'mouth-closing'].includes(phase);
@@ -365,7 +367,7 @@ export function RobotPrinter({
         value={inputValue}
         onChange={handleInputChange}
         onSubmit={handleSubmit}
-        loading={loading}
+        loading={loading || delay > 0} // 加载或倒计时期间都视为加载状态（禁用输入）
       />
 
       {/* 拓展功能菜单 */}
