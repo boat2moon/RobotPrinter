@@ -1,34 +1,60 @@
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 
 interface EyesProps {
-  /** 是否正在眨眼 */
-  isBlinking?: boolean;
-  /** 是否为加载中模式 */
-  isLoading?: boolean;
-  /** 是否启用鼠标跟随（仅普通模式生效） */
+  /** 眼睛模式：normal=普通模式(会眨眼), loading=加载中(脉冲动画) */
+  mode?: 'normal' | 'loading';
+  /** 眨眼间隔范围 [最小ms, 最大ms]，仅 normal 模式有效 */
+  blinkInterval?: [number, number];
+  /** 是否启用鼠标跟随（仅 normal 模式生效） */
   followMouse?: boolean;
   /** 固定注视方向（设置后优先于鼠标跟随） */
   lookDirection?: 'left' | 'right' | 'up' | 'down' | null;
 }
 
 /**
- * 眼睛组件
- * 支持眨眼、加载中动画、鼠标跟随、固定注视方向
+ * 眼睛组件（独立管理眨眼动画）
+ * 支持：普通模式眨眼、加载中脉冲、鼠标跟随、固定注视方向
  * 最大偏移量根据眼睛和瞳孔的实际尺寸动态计算
  */
 export function Eyes({ 
-  isBlinking = false, 
-  isLoading = false,
+  mode = 'normal',
+  blinkInterval = [2000, 5000],
   followMouse = true,
   lookDirection = null,
 }: EyesProps) {
+  const [isBlinking, setIsBlinking] = useState(false);
   const [pupilOffset, setPupilOffset] = useState({ x: 0, y: 0 });
-  const [maxOffset, setMaxOffset] = useState({ x: 3, y: 3.5 }); // 默认值，会被动态计算覆盖
+  const [maxOffset, setMaxOffset] = useState({ x: 3, y: 3.5 });
+  
   const eyesRef = useRef<HTMLDivElement>(null);
   const eyeRef = useRef<HTMLDivElement>(null);
   const pupilRef = useRef<HTMLDivElement>(null);
   
-  // 动态计算最大偏移量（基于眼睛和瞳孔的实际尺寸）
+  // 眨眼动画（仅 normal 模式）
+  useEffect(() => {
+    if (mode !== 'normal') return;
+    
+    let timerId: ReturnType<typeof setTimeout>;
+    
+    const blink = () => {
+      setIsBlinking(true);
+      setTimeout(() => setIsBlinking(false), 150);
+    };
+    
+    const scheduleNextBlink = (): ReturnType<typeof setTimeout> => {
+      const [min, max] = blinkInterval;
+      const delay = Math.random() * (max - min) + min;
+      return setTimeout(() => {
+        blink();
+        timerId = scheduleNextBlink();
+      }, delay);
+    };
+    
+    timerId = scheduleNextBlink();
+    return () => clearTimeout(timerId);
+  }, [mode, blinkInterval]);
+  
+  // 动态计算最大偏移量
   useLayoutEffect(() => {
     const calculateMaxOffset = () => {
       if (!eyeRef.current || !pupilRef.current) return;
@@ -36,7 +62,6 @@ export function Eyes({
       const eyeRect = eyeRef.current.getBoundingClientRect();
       const pupilRect = pupilRef.current.getBoundingClientRect();
       
-      // 最大偏移 = (眼睛尺寸 - 瞳孔尺寸) / 2，留1px边距
       const maxX = (eyeRect.width - pupilRect.width) / 2 - 1;
       const maxY = (eyeRect.height - pupilRect.height) / 2 - 1;
       
@@ -48,9 +73,9 @@ export function Eyes({
     return () => window.removeEventListener('resize', calculateMaxOffset);
   }, []);
   
-  // 鼠标跟随效果（仅在没有固定注视方向时生效）
+  // 鼠标跟随效果
   useEffect(() => {
-    // 如果有固定注视方向，使用动态计算的最大偏移
+    // 固定注视方向时使用最大偏移
     if (lookDirection) {
       const offsets = {
         left: { x: -maxOffset.x, y: 0 },
@@ -62,7 +87,8 @@ export function Eyes({
       return;
     }
     
-    if (isLoading || !followMouse) {
+    // loading 模式或禁用跟随时居中
+    if (mode === 'loading' || !followMouse) {
       setPupilOffset({ x: 0, y: 0 });
       return;
     }
@@ -77,11 +103,8 @@ export function Eyes({
       const deltaX = e.clientX - eyesCenterX;
       const deltaY = e.clientY - eyesCenterY;
       
-      // 使用 atan2 获取角度，确保所有方向一致
       const angle = Math.atan2(deltaY, deltaX);
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      
-      // 距离越远，偏移越接近最大值（使用对数衰减）
       const factor = Math.min(1, Math.log(distance / 20 + 1) / 2);
       
       const offsetX = Math.cos(angle) * maxOffset.x * factor;
@@ -92,8 +115,9 @@ export function Eyes({
     
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isLoading, followMouse, lookDirection, maxOffset]);
+  }, [mode, followMouse, lookDirection, maxOffset]);
   
+  const isLoading = mode === 'loading';
   const eyeClassName = `eye ${isBlinking ? 'blink' : ''} ${isLoading ? 'loading' : ''}`;
   
   const pupilStyle = !isLoading ? {

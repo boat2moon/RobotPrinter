@@ -9,10 +9,10 @@ interface RobotHeadProps {
   isMouthOpen: boolean;
   /** 点击回调 */
   onClick: () => void;
-  /** 眼睛是否眨眼 */
-  isBlinking?: boolean;
-  /** 眼睛是否加载中模式 */
-  isEyeLoading?: boolean;
+  /** 眼睛模式：normal=普通(会眨眼), loading=加载中(脉冲) */
+  eyeMode?: 'normal' | 'loading';
+  /** 眨眼间隔 [最小ms, 最大ms] */
+  blinkInterval?: [number, number];
   /** 眼睛注视方向 */
   eyeLookDirection?: 'left' | 'right' | 'up' | 'down' | null;
   /** 天线小球颜色 */
@@ -31,8 +31,8 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
   isRotated,
   isMouthOpen,
   onClick,
-  isBlinking = false,
-  isEyeLoading = false,
+  eyeMode = 'normal',
+  blinkInterval = [2000, 5000],
   eyeLookDirection = null,
   antennaBallColor,
   onMouthPositionChange,
@@ -51,7 +51,7 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       onMouthPositionChange(centerX, centerY);
-    }, isMouthOpen ? 200 : 0); // 张开时等动画完成，闭合时立即通知
+    }, isMouthOpen ? 200 : 0);
     
     return () => clearTimeout(timer);
   }, [isMouthOpen, onMouthPositionChange, isRotated]);
@@ -74,10 +74,10 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
 
         {/* 脸部屏幕 */}
         <div className="face-screen">
-          {/* 眼睛 */}
+          {/* 眼睛 - 独立管理眨眼动画 */}
           <Eyes 
-            isBlinking={isBlinking} 
-            isLoading={isEyeLoading} 
+            mode={eyeMode}
+            blinkInterval={blinkInterval}
             lookDirection={eyeLookDirection}
           />
           {/* 嘴巴 */}

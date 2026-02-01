@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import './RobotPrinter.css';
 import { Paper } from './Paper';
 import { RobotHead } from './RobotHead';
@@ -58,7 +58,6 @@ export function RobotPrinter({
 }: RobotPrinterProps) {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [inputValue, setInputValue] = useState(defaultValue);
-  const [isBlinking, setIsBlinking] = useState(false);
   const [paperRight, setPaperRight] = useState(85);
   
   const inputRef = useRef<HTMLInputElement>(null);
@@ -69,34 +68,9 @@ export function RobotPrinter({
   const handleMouthPositionChange = useCallback((mouthCenterX: number) => {
     if (!containerRef.current) return;
     const containerRect = containerRef.current.getBoundingClientRect();
-    // 纸条右侧对齐嘴巴中心
     const rightOffset = containerRect.right - mouthCenterX;
     setPaperRight(rightOffset);
   }, []);
-
-  // 眨眼动画（仅在 normal 模式生效）
-  useEffect(() => {
-    if (eyeMode.mode !== 'normal') return;
-    
-    const blinkInterval = eyeMode.blinkInterval || [2000, 5000];
-    
-    const blink = () => {
-      setIsBlinking(true);
-      setTimeout(() => setIsBlinking(false), 150);
-    };
-
-    const scheduleNextBlink = () => {
-      const [min, max] = blinkInterval;
-      const delay = Math.random() * (max - min) + min;
-      return setTimeout(() => {
-        blink();
-        scheduleNextBlink();
-      }, delay);
-    };
-
-    const timerId = scheduleNextBlink();
-    return () => clearTimeout(timerId);
-  }, [eyeMode]);
 
   // 展开动画序列
   const expandSequence = useCallback(() => {
@@ -192,8 +166,8 @@ export function RobotPrinter({
         isRotated={isRotated}
         isMouthOpen={isMouthOpen}
         onClick={toggle}
-        isBlinking={isBlinking}
-        isEyeLoading={eyeMode.mode === 'loading'}
+        eyeMode={eyeMode.mode}
+        blinkInterval={eyeMode.mode === 'normal' ? eyeMode.blinkInterval : undefined}
         eyeLookDirection={isPaperVisible ? 'down' : null}
         antennaBallColor={antennaBallColor}
         onMouthPositionChange={handleMouthPositionChange}
