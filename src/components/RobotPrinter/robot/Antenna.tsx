@@ -5,8 +5,6 @@ interface AntennaProps {
   loading?: boolean;
   /** 点击小球回调（用于终止请求） */
   onBallClick?: () => void;
-  /** 头部旋转角度（用于文本反向旋转保持水平） */
-  rotation?: number;
 }
 
 /**
@@ -18,7 +16,6 @@ export function Antenna({
   ballColor = ['#ff6b6b', '#e74c3c', '#c0392b'],
   loading = false,
   onBallClick,
-  rotation = 0,
 }: AntennaProps) {
   const ballBackground = Array.isArray(ballColor)
     ? `radial-gradient(circle at 30% 30%, ${ballColor.join(', ')})`
@@ -43,29 +40,16 @@ export function Antenna({
     <div 
       className="antenna" 
       onClick={handleAntennaEvent} 
-      onMouseDown={handleAntennaEvent} 
+      onMouseDown={handleAntennaEvent} // 关键：阻止 RobotPrinter 的 onMouseDown 触发拖拽/点击检测
     >
       <div className="antenna-stem" />
       <div 
         className={`antenna-ball ${loading ? 'loading' : ''}`}
         style={{ background: ballBackground }}
         onClick={handleBallClick}
-        onMouseDown={handleAntennaEvent}
+        onMouseDown={handleAntennaEvent} // 同样需要在球上也阻止 onMouseDown
         title={loading ? '点击停止' : undefined}
-      >
-        {/* 加载时显示停止图标（小方块） */}
-        <div className="stop-icon" />
-      </div>
-      
-      {/* 加载时的文字提示 - 反向旋转以保持直立 */}
-      {loading && (
-        <span 
-          className="antenna-tip"
-          style={{ transform: `translateY(50%) rotate(${-rotation}deg)` }}
-        >
-          点击停止
-        </span>
-      )}
+      />
     </div>
   );
 }

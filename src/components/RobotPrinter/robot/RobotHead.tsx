@@ -91,7 +91,6 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
           ballColor={antennaBallColor} 
           loading={loading}
           onBallClick={onAbort}
-          rotation={isRotated ? rotateDirection : 0}
         />
 
         {/* 头壳 */}
