@@ -95,6 +95,7 @@ function App() {
           },
           { label: '总结', onClick: (v) => console.log('总结:', v) },
           { label: '优化', onClick: (v) => console.log('优化:', v) },
+          { label: '待开发' }, // 没有 onClick，点击会显示"功能待实现"提示
         ]}
         resultPanel={result.visible ? {
           visible: result.visible,
