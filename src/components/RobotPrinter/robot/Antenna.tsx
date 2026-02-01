@@ -50,11 +50,6 @@ export function Antenna({
         {/* 加载状态时显示停止图标（小正方形） */}
         {loading && <div className="stop-icon" />}
       </div>
-      
-      {/* 加载状态时直接显示提示文字 */}
-      {loading && (
-        <span className="antenna-hint">点击停止</span>
-      )}
     </div>
   );
 }
