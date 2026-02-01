@@ -287,10 +287,15 @@ export function RobotPrinter({
   // 转动方向（向左吐=顺时针90°，向右吐=逆时针90°）
   const rotateDirection = paperDirection === 'left' ? 90 : -90;
 
-  // 动态阴影偏移（背向中心=凸出的那侧阴影更深）
-  // 阴影应该在凸出的方向（远离中心的方向）
-  const shadowX = -tiltY * 0.5 * shadowStrength;  // tiltY负=右侧凸出，阴影往右
-  const shadowY = tiltX * 0.5 * shadowStrength;   // tiltX正=底部凸出，阴影往下
+  // 动态阴影偏移（基于页面中心光源，完全对称）
+  // 阴影方向完全由位置决定，无基础偏移
+  const shadowOffsetX = -tiltY * 0.5 * shadowStrength;  // tiltY负=右侧凸出，阴影往右
+  const shadowOffsetY = tiltX * 0.5 * shadowStrength;   // tiltX正=底部凸出，阴影往下
+  
+  // 添加最小阴影距离保证可见性（取绝对值方向上的基础偏移）
+  const minShadow = 4;
+  const shadowX = shadowOffsetX + Math.sign(shadowOffsetX || 1) * minShadow;
+  const shadowY = shadowOffsetY + Math.sign(shadowOffsetY || 1) * minShadow;
 
   // 容器样式
   const containerStyle: React.CSSProperties = {

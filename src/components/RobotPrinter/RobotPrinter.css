@@ -137,13 +137,13 @@
   z-index: 10;
   /* 
    * drop-shadow 基于元素轮廓生成阴影
-   * 阴影方向由 CSS 变量控制，不随内部元素旋转
-   * 基础偏移 (5px, 5px) 保持对称，由动态偏移调整方向
+   * 阴影方向完全由 CSS 变量控制（基于页面中心光源）
+   * 基础偏移为 0，保证左右/上下完全对称
    */
   filter: 
     drop-shadow(
-      calc(5px + var(--shadow-x, 0px)) 
-      calc(5px + var(--shadow-y, 0px)) 
+      var(--shadow-x, 5px) 
+      var(--shadow-y, 5px) 
       8px 
       rgba(0, 0, 0, 0.2)
     );
@@ -153,8 +153,8 @@
 .robot-head-wrapper:hover {
   filter: 
     drop-shadow(
-      calc(5px + var(--shadow-x, 0px)) 
-      calc(5px + var(--shadow-y, 0px)) 
+      var(--shadow-x, 5px) 
+      var(--shadow-y, 5px) 
       8px 
       rgba(0, 0, 0, 0.2)
     )

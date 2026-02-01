@@ -19,7 +19,7 @@ function App() {
         draggable={true}
         defaultPosition={{ x: window.innerWidth - 100, y: window.innerHeight - 100 }}
         tiltStrength={2}
-        shadowStrength={1.75}
+        shadowStrength={1.5}
         placeholder="输入记录..."
         onSubmit={handleSubmit}
         paperWidth={600}
