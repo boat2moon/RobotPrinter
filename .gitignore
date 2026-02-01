@@ -23,4 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
+# 参考
 ref-ai-island
+ref.html
