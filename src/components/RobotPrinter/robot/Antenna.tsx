@@ -57,11 +57,11 @@ export function Antenna({
         <div className="stop-icon" />
       </div>
       
-      {/* 加载时的文字提示 - 反向旋转以保持水平 */}
+      {/* 加载时的文字提示 - 反向旋转以保持直立 */}
       {loading && (
         <span 
           className="antenna-tip"
-          style={{ transform: `translateX(-50%) rotate(${-rotation}deg)` }}
+          style={{ transform: `translateY(50%) rotate(${-rotation}deg)` }}
         >
           点击停止
         </span>

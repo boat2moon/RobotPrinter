@@ -648,15 +648,18 @@
 /* 天线提示文字 */
 .antenna-tip {
   position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 8px;
+  bottom: 50%;
+  left: 100%;
+  transform: translateY(50%);
+  margin-left: 12px;
   font-size: 11px;
+  line-height: 1.2;
   color: #718096;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
   white-space: nowrap;
   pointer-events: none;
-  letter-spacing: 0.5px;
+  letter-spacing: 2px;
   opacity: 0.7;
   animation: fadeIn 0.3s ease;
 }
