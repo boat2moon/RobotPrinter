@@ -51,7 +51,16 @@ export const Paper = forwardRef<HTMLInputElement, PaperProps>(({
         '--paper-width': `${width}px`,
         ...positionStyle,
       } as React.CSSProperties}
+      // 阻止点击冒泡，避免触发机器人收拢
+      onClick={(e) => e.stopPropagation()}
     >
+      {/* 打孔装饰 */}
+      <div className={`paper-holes ${direction === 'right' ? 'right' : 'left'}`}>
+        <div className="paper-hole" />
+        <div className="paper-hole" />
+        <div className="paper-hole" />
+      </div>
+      
       <div className="paper-content">
         <input
           ref={ref}
