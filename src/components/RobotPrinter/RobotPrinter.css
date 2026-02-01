@@ -121,14 +121,14 @@
   cursor: pointer;
   z-index: 10;
   transform-style: preserve-3d;
-  /* 初始状态：正面朝向用户 */
-  transform: rotateX(15deg) rotateY(-5deg) rotateZ(0deg);
+  /* 初始状态：略微朝向左上方 */
+  transform: rotateX(18deg) rotateY(8deg) rotateZ(0deg);
   transition: transform var(--rotate-duration, 400ms) cubic-bezier(0.34, 1.2, 0.64, 1);
 }
 
-/* 旋转90度后的状态（顺时针，嘴巴朝左） */
+/* 旋转90度后的状态（顺时针，嘴巴朝左，无倾斜） */
 .robot-head.rotated {
-  transform: rotateX(15deg) rotateY(-5deg) rotateZ(90deg);
+  transform: rotateZ(90deg);
 }
 
 .robot-head:hover {
@@ -238,14 +238,24 @@
     inset 0 2px 4px rgba(0, 0, 0, 0.5),
     inset 0 -1px 2px rgba(255, 255, 255, 0.05);
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+/* 眼睛容器 */
+.eyes-container {
+  display: flex;
   justify-content: center;
   align-items: center;
   gap: 16px;
-  padding-bottom: 8px;
 }
 
 /* 眼睛 - 青色发光 */
 .eye {
+  position: relative;
   width: 14px;
   height: 18px;
   background: #00ffcc;
@@ -255,10 +265,31 @@
     0 0 16px rgba(0, 255, 204, 0.5),
     inset 0 0 4px rgba(255, 255, 255, 0.5);
   transition: transform 0.15s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 瞳孔 - 深色中心 */
+.pupil {
+  width: 6px;
+  height: 8px;
+  background: radial-gradient(
+    ellipse at center,
+    #003333 0%,
+    #006666 60%,
+    transparent 100%
+  );
+  border-radius: 2px;
+  transition: transform 0.08s ease-out;
 }
 
 .eye.blink {
   transform: scaleY(0.1);
+}
+
+.eye.blink .pupil {
+  opacity: 0;
 }
 
 /* 加载中模式 - 脉冲动画 */
@@ -290,11 +321,7 @@
 
 /* 嘴巴 - 支持张嘴动画 */
 .mouth {
-  position: absolute;
-  /* 使用top定位，让高度变化向下扩展（旋转后朝纸条方向） */
-  top: 38px; /* face-screen高50px，原bottom:8px，所以top = 50 - 8 - 4(初始高度) = 38px */
-  left: 50%;
-  transform: translateX(-50%);
+  /* 使用flex布局自动定位，不再用绝对定位 */
   width: 12px;
   height: 4px;
   background: #444;
