@@ -23,6 +23,11 @@ function App() {
         placeholder="输入记录..."
         onSubmit={handleSubmit}
         paperWidth={600}
+        actions={[
+          { label: '翻译' },
+          { label: '总结' },
+          { label: '优化' },
+        ]}
       />
     </div>
   );

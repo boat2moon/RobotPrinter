@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import './RobotPrinter.css';
 import { Paper } from './Paper';
 import { RobotHead } from './RobotHead';
+import { ActionMenu, type ActionConfig } from './ActionMenu';
 
 /** 眼睛模式配置 */
 export type EyeMode = 
@@ -41,6 +42,10 @@ export interface RobotPrinterProps {
   tiltStrength?: number;
   /** 阴影强度 (0-1 或更大)，控制动态阴影的偏移程度 */
   shadowStrength?: number;
+  /** 拓展功能按钮配置 */
+  actions?: ActionConfig[];
+  /** 是否显示提示文字，默认显示 */
+  showHint?: boolean;
 }
 
 // 动画阶段枚举
@@ -109,6 +114,8 @@ export function RobotPrinter({
   defaultPosition,
   tiltStrength = 1,
   shadowStrength = 1,
+  actions = [],
+  showHint = true,
 }: RobotPrinterProps) {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [inputValue, setInputValue] = useState(defaultValue);
@@ -206,9 +213,9 @@ export function RobotPrinter({
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!draggable) return;
     
-    // 如果点击的是纸条区域，不触发拖拽
+    // 如果点击的是纸条或菜单区域，不触发拖拽
     const target = e.target as HTMLElement;
-    if (target.closest('.paper')) return;
+    if (target.closest('.paper') || target.closest('.action-menu')) return;
     
     e.preventDefault();
     dragStartRef.current = {
@@ -339,6 +346,16 @@ export function RobotPrinter({
         onSubmit={handleSubmit}
       />
 
+      {/* 拓展功能菜单 */}
+      <ActionMenu
+        actions={actions}
+        inputValue={inputValue}
+        isVisible={isPaperVisible}
+        direction={paperDirection}
+        offset={paperOffset}
+        paperWidth={paperWidth}
+      />
+
       {/* 机器人头部 */}
       <RobotHead
         ref={headRef}
@@ -354,9 +371,11 @@ export function RobotPrinter({
       />
 
       {/* 提示文字 */}
-      <div className="hint">
-        {draggable ? '拖拽移动 / 点击展开' : '点击机器人收纳/展开'}
-      </div>
+      {showHint && (
+        <div className="hint">
+          {draggable ? '拖拽移动 / 点击展开' : '点击机器人收纳/展开'}
+        </div>
+      )}
     </div>
   );
 }
