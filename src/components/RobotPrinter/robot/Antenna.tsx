@@ -10,6 +10,7 @@ interface AntennaProps {
 /**
  * 天线组件（包含小球）
  * 加载状态时小球显示呼吸灯效果，可点击终止
+ * 注意：加载状态下整个天线区域的点击都会被拦截
  */
 export function Antenna({ 
   ballColor = ['#ff6b6b', '#e74c3c', '#c0392b'],
@@ -20,8 +21,15 @@ export function Antenna({
     ? `radial-gradient(circle at 30% 30%, ${ballColor.join(', ')})`
     : ballColor;
 
-  const handleClick = (e: React.MouseEvent) => {
-    // 加载状态下阻止冒泡，避免触发机器人转动
+  // 加载状态下阻止整个天线区域的点击冒泡
+  const handleAntennaClick = (e: React.MouseEvent) => {
+    if (loading) {
+      e.stopPropagation();
+    }
+  };
+
+  // 点击小球触发终止
+  const handleBallClick = (e: React.MouseEvent) => {
     if (loading) {
       e.stopPropagation();
       onBallClick?.();
@@ -29,12 +37,12 @@ export function Antenna({
   };
 
   return (
-    <div className="antenna">
+    <div className="antenna" onClick={handleAntennaClick}>
       <div className="antenna-stem" />
       <div 
         className={`antenna-ball ${loading ? 'loading' : ''}`}
         style={{ background: ballBackground }}
-        onClick={handleClick}
+        onClick={handleBallClick}
         title={loading ? '点击停止' : undefined}
       />
     </div>
