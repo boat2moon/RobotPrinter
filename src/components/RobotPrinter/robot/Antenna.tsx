@@ -40,19 +40,24 @@ export function Antenna({
     <div 
       className="antenna" 
       onClick={handleAntennaEvent} 
-      onMouseDown={handleAntennaEvent} // 关键：阻止 RobotPrinter 的 onMouseDown 触发拖拽/点击检测
+      onMouseDown={handleAntennaEvent} 
     >
       <div className="antenna-stem" />
       <div 
         className={`antenna-ball ${loading ? 'loading' : ''}`}
         style={{ background: ballBackground }}
         onClick={handleBallClick}
-        onMouseDown={handleAntennaEvent} // 同样需要在球上也阻止 onMouseDown
+        onMouseDown={handleAntennaEvent}
         title={loading ? '点击停止' : undefined}
       >
         {/* 加载时显示停止图标（小方块） */}
         <div className="stop-icon" />
       </div>
+      
+      {/* 加载时的文字提示 */}
+      {loading && (
+        <span className="antenna-tip">点击停止</span>
+      )}
     </div>
   );
 }
