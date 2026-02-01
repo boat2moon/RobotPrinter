@@ -9,14 +9,20 @@ interface RobotHeadProps {
   isMouthOpen: boolean;
   /** 点击回调 */
   onClick: () => void;
-  /** 眼睛模式：normal=普通(会眨眼), loading=加载中(脉冲) */
-  eyeMode?: 'normal' | 'loading';
+  /** 眼睛模式：normal=普通(会眨眼), loading=加载中(脉冲), countdown=倒计时 */
+  eyeMode?: 'normal' | 'loading' | 'countdown';
   /** 眨眼间隔 [最小ms, 最大ms] */
   blinkInterval?: [number, number];
   /** 眼睛注视方向 */
   eyeLookDirection?: 'left' | 'right' | 'up' | 'down' | null;
+  /** 倒计时数值（仅 countdown 模式生效） */
+  countdownValue?: number;
   /** 天线小球颜色 */
   antennaBallColor?: string | string[];
+  /** 是否处于加载状态（天线呼吸灯） */
+  loading?: boolean;
+  /** 点击天线小球终止回调 */
+  onAbort?: () => void;
   /** 嘴巴位置变化回调（返回嘴巴中心的屏幕坐标） */
   onMouthPositionChange?: (centerX: number, centerY: number) => void;
   /** 旋转方向（度），正值=顺时针，负值=逆时针 */
@@ -37,7 +43,10 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
   eyeMode = 'normal',
   blinkInterval = [2000, 5000],
   eyeLookDirection = null,
+  countdownValue = 0,
   antennaBallColor,
+  loading = false,
+  onAbort,
   onMouthPositionChange,
   rotateDirection = 90,
   children,
@@ -77,8 +86,12 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
         className={`robot-head ${isRotated ? 'rotated' : ''}`} 
         style={headInnerStyle}
       >
-        {/* 天线 */}
-        <Antenna ballColor={antennaBallColor} />
+        {/* 天线 - 加载时呼吸灯，可点击终止 */}
+        <Antenna 
+          ballColor={antennaBallColor} 
+          loading={loading}
+          onBallClick={onAbort}
+        />
 
         {/* 头壳 */}
         <div className="head-body">
@@ -94,6 +107,7 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
               mode={eyeMode}
               blinkInterval={blinkInterval}
               lookDirection={eyeLookDirection}
+              countdownValue={countdownValue}
             />
             {/* 嘴巴 */}
             <div 

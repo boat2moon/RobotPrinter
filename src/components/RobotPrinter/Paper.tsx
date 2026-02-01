@@ -17,17 +17,14 @@ interface PaperProps {
   onChange: (value: string) => void;
   /** 回车键回调 */
   onSubmit?: () => void;
-  /** 加载状态 */
+  /** 加载状态（禁用输入） */
   loading?: boolean;
-  /** 中止请求回调 */
-  onAbort?: () => void;
-  /** 频率限制倒计时（秒），>0 时显示 */
-  delay?: number;
 }
 
 /**
  * 纸条组件
  * 支持向左或向右展开
+ * 注：加载状态、中止按钮、倒计时已移至机器人头部（眼睛/天线）
  */
 export const Paper = forwardRef<HTMLInputElement, PaperProps>(({
   isExpanded,
@@ -39,8 +36,6 @@ export const Paper = forwardRef<HTMLInputElement, PaperProps>(({
   onChange,
   onSubmit,
   loading = false,
-  onAbort,
-  delay = 0,
 }, ref) => {
   /**
    * 中文输入法 composition 状态
@@ -93,30 +88,6 @@ export const Paper = forwardRef<HTMLInputElement, PaperProps>(({
           onCompositionEnd={() => setComposition(false)}
           disabled={loading}
         />
-        
-        {/* 频率限制倒计时 */}
-        {delay > 0 && (
-          <span className="paper-delay">{delay}s</span>
-        )}
-        
-        {/* 加载指示器和中止按钮 */}
-        {loading && (
-          <div className="paper-loading">
-            <span className="loading-spinner" />
-            {onAbort && (
-              <button 
-                className="abort-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAbort();
-                }}
-                title="停止"
-              >
-                ■
-              </button>
-            )}
-          </div>
-        )}
       </div>
       {/* 纸条装饰线 */}
       <div className="paper-lines">

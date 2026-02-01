@@ -9,7 +9,8 @@ import { InfoBar } from './InfoBar';
 /** 眼睛模式配置 */
 export type EyeMode = 
   | { mode: 'normal'; blinkInterval?: [number, number] }
-  | { mode: 'loading' };
+  | { mode: 'loading' }
+  | { mode: 'countdown' };
 
 /** 位置类型 */
 export interface Position {
@@ -363,8 +364,6 @@ export function RobotPrinter({
         onChange={handleInputChange}
         onSubmit={handleSubmit}
         loading={loading}
-        onAbort={onAbort}
-        delay={delay}
       />
 
       {/* 拓展功能菜单 */}
@@ -377,8 +376,8 @@ export function RobotPrinter({
         paperWidth={paperWidth}
       />
 
-      {/* 结果面板 */}
-      {resultPanel && (
+      {/* 结果面板 - 纸条收起时同时隐藏 */}
+      {resultPanel && isPaperVisible && (
         <ResultPanel
           {...resultPanel}
           inputValue={inputValue}
@@ -404,10 +403,13 @@ export function RobotPrinter({
         isRotated={isRotated}
         isMouthOpen={isMouthOpen}
         onClick={handleClick}
-        eyeMode={eyeMode.mode}
+        eyeMode={loading ? 'loading' : delay > 0 ? 'countdown' : eyeMode.mode}
         blinkInterval={eyeMode.mode === 'normal' ? eyeMode.blinkInterval : undefined}
         eyeLookDirection={isPaperVisible ? (paperDirection === 'left' ? 'down' : 'down') : null}
+        countdownValue={delay}
         antennaBallColor={antennaBallColor}
+        loading={loading}
+        onAbort={onAbort}
         onMouthPositionChange={handleMouthPositionChange}
         rotateDirection={rotateDirection}
       />

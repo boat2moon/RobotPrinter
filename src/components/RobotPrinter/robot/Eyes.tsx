@@ -1,19 +1,21 @@
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 
 interface EyesProps {
-  /** 眼睛模式：normal=普通模式(会眨眼), loading=加载中(脉冲动画) */
-  mode?: 'normal' | 'loading';
+  /** 眼睛模式：normal=普通模式(会眨眼), loading=加载中(脉冲动画), countdown=倒计时显示 */
+  mode?: 'normal' | 'loading' | 'countdown';
   /** 眨眼间隔范围 [最小ms, 最大ms]，仅 normal 模式有效 */
   blinkInterval?: [number, number];
   /** 是否启用鼠标跟随（仅 normal 模式生效） */
   followMouse?: boolean;
   /** 固定注视方向（设置后优先于鼠标跟随） */
   lookDirection?: 'left' | 'right' | 'up' | 'down' | null;
+  /** 倒计时数字（仅 countdown 模式生效） */
+  countdownValue?: number;
 }
 
 /**
  * 眼睛组件（独立管理眨眼动画）
- * 支持：普通模式眨眼、加载中脉冲、鼠标跟随、固定注视方向
+ * 支持：普通模式眨眼、加载中脉冲、倒计时显示、鼠标跟随、固定注视方向
  * 最大偏移量根据眼睛和瞳孔的实际尺寸动态计算
  */
 export function Eyes({ 
@@ -21,6 +23,7 @@ export function Eyes({
   blinkInterval = [2000, 5000],
   followMouse = true,
   lookDirection = null,
+  countdownValue = 0,
 }: EyesProps) {
   const [isBlinking, setIsBlinking] = useState(false);
   const [pupilOffset, setPupilOffset] = useState({ x: 0, y: 0 });
@@ -87,8 +90,8 @@ export function Eyes({
       return;
     }
     
-    // loading 模式或禁用跟随时居中
-    if (mode === 'loading' || !followMouse) {
+    // loading/countdown 模式或禁用跟随时居中
+    if (mode !== 'normal' || !followMouse) {
       setPupilOffset({ x: 0, y: 0 });
       return;
     }
@@ -118,19 +121,28 @@ export function Eyes({
   }, [mode, followMouse, lookDirection, maxOffset]);
   
   const isLoading = mode === 'loading';
-  const eyeClassName = `eye ${isBlinking ? 'blink' : ''} ${isLoading ? 'loading' : ''}`;
+  const isCountdown = mode === 'countdown';
+  const eyeClassName = `eye ${isBlinking ? 'blink' : ''} ${isLoading ? 'loading' : ''} ${isCountdown ? 'countdown' : ''}`;
   
-  const pupilStyle = !isLoading ? {
+  const pupilStyle = (!isLoading && !isCountdown) ? {
     transform: `translate(${pupilOffset.x}px, ${pupilOffset.y}px)`,
   } : {};
   
   return (
     <div className="eyes-container" ref={eyesRef}>
       <div className={`${eyeClassName} eye-left`} ref={eyeRef}>
-        <div className="pupil" style={pupilStyle} ref={pupilRef} />
+        {isCountdown ? (
+          <span className="countdown-digit">{countdownValue}</span>
+        ) : (
+          <div className="pupil" style={pupilStyle} ref={pupilRef} />
+        )}
       </div>
       <div className={`${eyeClassName} eye-right`}>
-        <div className="pupil" style={pupilStyle} />
+        {isCountdown ? (
+          <span className="countdown-digit">{countdownValue}</span>
+        ) : (
+          <div className="pupil" style={pupilStyle} />
+        )}
       </div>
     </div>
   );
