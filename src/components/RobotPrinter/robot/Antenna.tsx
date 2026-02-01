@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface AntennaProps {
   /** 小球颜色，单色或渐变色数组 */
   ballColor?: string | string[];

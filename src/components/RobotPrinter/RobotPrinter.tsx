@@ -1,8 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import './RobotPrinter.css';
 import { Paper } from './Paper';
-import { RobotHead } from './RobotHead';
-import { ActionMenu, type ActionConfig } from './ActionMenu';
+import { RobotHead } from './robot';
+import { ActionMenu, type ActionConfig } from './menus';
+import { ResultPanel, type ResultPanelConfig } from './ResultPanel';
+import { InfoBar } from './InfoBar';
 
 /** 眼睛模式配置 */
 export type EyeMode = 
@@ -46,6 +48,16 @@ export interface RobotPrinterProps {
   actions?: ActionConfig[];
   /** 是否显示提示文字，默认显示 */
   showHint?: boolean;
+  /** 结果面板配置（用户控制） */
+  resultPanel?: ResultPanelConfig;
+  /** 加载状态 */
+  loading?: boolean;
+  /** 中止请求回调 */
+  onAbort?: () => void;
+  /** 频率限制倒计时（秒） */
+  delay?: number;
+  /** 底部提示内容 */
+  infoContent?: React.ReactNode;
 }
 
 // 动画阶段枚举
@@ -116,6 +128,11 @@ export function RobotPrinter({
   shadowStrength = 1,
   actions = [],
   showHint = true,
+  resultPanel,
+  loading = false,
+  onAbort,
+  delay = 0,
+  infoContent,
 }: RobotPrinterProps) {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [inputValue, setInputValue] = useState(defaultValue);
@@ -213,9 +230,10 @@ export function RobotPrinter({
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!draggable) return;
     
-    // 如果点击的是纸条或菜单区域，不触发拖拽
+    // 如果点击的是纸条、菜单、结果面板或信息栏区域，不触发拖拽
     const target = e.target as HTMLElement;
-    if (target.closest('.paper') || target.closest('.action-menu')) return;
+    if (target.closest('.paper') || target.closest('.action-menu') || 
+        target.closest('.result-panel') || target.closest('.info-bar')) return;
     
     e.preventDefault();
     dragStartRef.current = {
@@ -344,6 +362,9 @@ export function RobotPrinter({
         value={inputValue}
         onChange={handleInputChange}
         onSubmit={handleSubmit}
+        loading={loading}
+        onAbort={onAbort}
+        delay={delay}
       />
 
       {/* 拓展功能菜单 */}
@@ -355,6 +376,27 @@ export function RobotPrinter({
         offset={paperOffset}
         paperWidth={paperWidth}
       />
+
+      {/* 结果面板 */}
+      {resultPanel && (
+        <ResultPanel
+          {...resultPanel}
+          inputValue={inputValue}
+          direction={paperDirection}
+          offset={paperOffset}
+          paperWidth={paperWidth}
+        />
+      )}
+
+      {/* 底部提示信息 */}
+      <InfoBar
+        direction={paperDirection}
+        offset={paperOffset}
+        paperWidth={paperWidth}
+        isVisible={isPaperVisible}
+      >
+        {infoContent}
+      </InfoBar>
 
       {/* 机器人头部 */}
       <RobotHead
