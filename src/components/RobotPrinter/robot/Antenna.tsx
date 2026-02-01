@@ -49,7 +49,10 @@ export function Antenna({
         onClick={handleBallClick}
         onMouseDown={handleAntennaEvent} // 同样需要在球上也阻止 onMouseDown
         title={loading ? '点击停止' : undefined}
-      />
+      >
+        {/* 加载时显示停止图标（小方块） */}
+        <div className="stop-icon" />
+      </div>
     </div>
   );
 }
