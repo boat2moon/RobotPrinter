@@ -224,8 +224,10 @@ export function RobotPrinter({
   const handleClick = useCallback(() => {
     // 如果刚刚拖拽过，不触发点击
     if (dragStartRef.current) return;
+    // 加载中时禁止收拢纸条
+    if (loading) return;
     toggle();
-  }, [toggle]);
+  }, [toggle, loading]);
 
   // 拖拽开始（只在机器人头部区域，排除纸条）
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
