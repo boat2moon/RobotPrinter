@@ -777,31 +777,29 @@
 
 /* 倒计时模式 - 眼睛区域整体显示数字 */
 .eyes-container.countdown-mode {
-  /* 整个眼睛区域变为倒计时显示区 */
+  /* 保持原有尺寸，不影响嘴巴布局 */
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
 }
 
 .eyes-container.countdown-mode .countdown-digit {
+  /* 使用绝对定位覆盖整个脸部屏幕区域 */
   position: absolute;
-  font-size: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
   font-weight: 700;
   font-family: 'SF Mono', 'Consolas', monospace;
   color: #ffcc00;
   text-shadow: 0 0 8px rgba(255, 204, 0, 0.8);
   animation: countdownPulse 1s ease-in-out infinite;
   z-index: 10;
-  /* 数字始终保持正向（通过 JS 动态设置 transform） */
-  transition: transform 0.3s ease;
+  pointer-events: none;
 }
 
 /* 隐藏倒计时模式下的眼睛 */
 .eye.countdown-eye {
-  display: none;
+  visibility: hidden;
 }
 
 @keyframes countdownPulse {

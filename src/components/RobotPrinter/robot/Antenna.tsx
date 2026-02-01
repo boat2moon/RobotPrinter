@@ -21,9 +21,10 @@ export function Antenna({
     : ballColor;
 
   const handleClick = (e: React.MouseEvent) => {
-    if (loading && onBallClick) {
+    // 加载状态下阻止冒泡，避免触发机器人转动
+    if (loading) {
       e.stopPropagation();
-      onBallClick();
+      onBallClick?.();
     }
   };
 

@@ -131,16 +131,16 @@ export function Eyes({
     transform: `translate(${pupilOffset.x}px, ${pupilOffset.y}px)`,
   } : {};
   
-  // 倒计时数字反向旋转，保持正向显示
-  const countdownStyle: React.CSSProperties = headRotation !== 0 
-    ? { transform: `rotate(${-headRotation}deg)` }
-    : {};
-  
   return (
     <div className={`eyes-container ${isCountdown ? 'countdown-mode' : ''}`} ref={eyesRef}>
       {/* 倒计时模式：跨两眼居中显示一个数字 */}
       {isCountdown && (
-        <span className="countdown-digit" style={countdownStyle}>
+        <span 
+          className="countdown-digit" 
+          style={{ 
+            transform: `translate(-50%, -50%) rotate(${-headRotation}deg)` 
+          }}
+        >
           {countdownValue}
         </span>
       )}
