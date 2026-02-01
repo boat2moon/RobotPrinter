@@ -21,26 +21,33 @@ export function Antenna({
     ? `radial-gradient(circle at 30% 30%, ${ballColor.join(', ')})`
     : ballColor;
 
-  // 天线区域始终阻止冒泡，避免触发机器人转动
-  const handleAntennaClick = (e: React.MouseEvent) => {
+  // 天线区域始终阻止事件冒泡（包括点击和按下），避免触发机器人转动
+  const handleAntennaEvent = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
 
   // 点击小球触发终止（仅加载状态有效）
   const handleBallClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // 同时也阻止 handleAntennaEvent 的进一步处理（虽不影响但逻辑更清晰）
+    
     if (loading) {
       onBallClick?.();
     }
   };
 
   return (
-    <div className="antenna" onClick={handleAntennaClick}>
+    <div 
+      className="antenna" 
+      onClick={handleAntennaEvent} 
+      onMouseDown={handleAntennaEvent} // 关键：阻止 RobotPrinter 的 onMouseDown 触发拖拽/点击检测
+    >
       <div className="antenna-stem" />
       <div 
         className={`antenna-ball ${loading ? 'loading' : ''}`}
         style={{ background: ballBackground }}
         onClick={handleBallClick}
+        onMouseDown={handleAntennaEvent} // 同样需要在球上也阻止 onMouseDown
         title={loading ? '点击停止' : undefined}
       />
     </div>
