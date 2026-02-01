@@ -18,7 +18,7 @@ interface EyesProps {
 /**
  * 眼睛组件（独立管理眨眼动画）
  * 支持：普通模式眨眼、加载中脉冲（无瞳孔）、倒计时显示（跨两眼居中）、鼠标跟随
- * 最大偏移量根据眼睛和瞳孔的实际尺寸动态计算
+ * 注：所有模式下眼睛都保持渲染以维持布局
  */
 export function Eyes({ 
   mode = 'normal',
@@ -125,7 +125,7 @@ export function Eyes({
   
   const isLoading = mode === 'loading';
   const isCountdown = mode === 'countdown';
-  const eyeClassName = `eye ${isBlinking ? 'blink' : ''} ${isLoading ? 'loading' : ''} ${isCountdown ? 'countdown-eye' : ''}`;
+  const eyeClassName = `eye ${isBlinking ? 'blink' : ''} ${isLoading ? 'loading' : ''}`;
   
   const pupilStyle = !isLoading ? {
     transform: `translate(${pupilOffset.x}px, ${pupilOffset.y}px)`,
@@ -133,7 +133,7 @@ export function Eyes({
   
   return (
     <div className={`eyes-container ${isCountdown ? 'countdown-mode' : ''}`} ref={eyesRef}>
-      {/* 倒计时模式：跨两眼居中显示一个数字 */}
+      {/* 倒计时模式：覆盖显示数字 */}
       {isCountdown && (
         <span 
           className="countdown-digit" 
@@ -145,22 +145,20 @@ export function Eyes({
         </span>
       )}
       
-      {/* 普通/加载模式：两只眼睛 */}
-      {!isCountdown && (
-        <>
-          <div className={`${eyeClassName} eye-left`} ref={eyeRef}>
-            {/* 加载模式不显示瞳孔 */}
-            {!isLoading && (
-              <div className="pupil" style={pupilStyle} ref={pupilRef} />
-            )}
-          </div>
-          <div className={`${eyeClassName} eye-right`}>
-            {!isLoading && (
-              <div className="pupil" style={pupilStyle} />
-            )}
-          </div>
-        </>
-      )}
+      {/* 眼睛始终渲染以保持布局，倒计时模式下通过 CSS 隐藏 */}
+      <div 
+        className={`${eyeClassName} eye-left ${isCountdown ? 'hidden-eye' : ''}`} 
+        ref={eyeRef}
+      >
+        {!isLoading && (
+          <div className="pupil" style={pupilStyle} ref={pupilRef} />
+        )}
+      </div>
+      <div className={`${eyeClassName} eye-right ${isCountdown ? 'hidden-eye' : ''}`}>
+        {!isLoading && (
+          <div className="pupil" style={pupilStyle} />
+        )}
+      </div>
     </div>
   );
 }

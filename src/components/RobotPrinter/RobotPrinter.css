@@ -781,8 +781,8 @@
   position: relative;
 }
 
-/* 倒计时模式显示的眼睛保持位置但透明 */
-.eyes-container.countdown-mode .eye {
+/* 倒计时模式下隐藏眼睛（保持布局） */
+.eye.hidden-eye {
   opacity: 0;
 }
 
