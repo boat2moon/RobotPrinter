@@ -9,7 +9,7 @@ interface AntennaProps {
 
 /**
  * 天线组件（包含小球）
- * 加载状态时小球显示呼吸灯效果，可点击终止
+ * 加载状态时小球放大显示停止图标，可点击终止
  * 注意：天线区域的点击始终被拦截，不会触发机器人转动
  */
 export function Antenna({ 
@@ -29,8 +29,6 @@ export function Antenna({
   // 点击小球触发终止（仅加载状态有效）
   const handleBallClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // 同时也阻止 handleAntennaEvent 的进一步处理（虽不影响但逻辑更清晰）
-    
     if (loading) {
       onBallClick?.();
     }
@@ -40,16 +38,23 @@ export function Antenna({
     <div 
       className="antenna" 
       onClick={handleAntennaEvent} 
-      onMouseDown={handleAntennaEvent} // 关键：阻止 RobotPrinter 的 onMouseDown 触发拖拽/点击检测
+      onMouseDown={handleAntennaEvent}
     >
       <div className="antenna-stem" />
       <div 
         className={`antenna-ball ${loading ? 'loading' : ''}`}
         style={{ background: ballBackground }}
         onClick={handleBallClick}
-        onMouseDown={handleAntennaEvent} // 同样需要在球上也阻止 onMouseDown
-        title={loading ? '点击停止' : undefined}
-      />
+        onMouseDown={handleAntennaEvent}
+      >
+        {/* 加载状态时显示停止图标（小正方形） */}
+        {loading && <div className="stop-icon" />}
+      </div>
+      
+      {/* 加载状态时直接显示提示文字 */}
+      {loading && (
+        <span className="antenna-hint">点击停止</span>
+      )}
     </div>
   );
 }

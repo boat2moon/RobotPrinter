@@ -628,14 +628,47 @@
   transition: box-shadow 0.3s ease;
 }
 
-/* 天线小球加载状态 - 呼吸灯效果，可点击终止 */
+/* 天线小球加载状态 - 放大显示停止图标 */
 .antenna-ball.loading {
   cursor: pointer;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   animation: antennaBreathe 1.2s ease-in-out infinite;
+  transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
 }
 
 .antenna-ball.loading:hover {
   transform: scale(1.15);
+}
+
+/* 停止图标 - 小正方形，黑色轮廓无填充 */
+.antenna-ball .stop-icon {
+  width: 8px;
+  height: 8px;
+  border: 2px solid rgba(0, 0, 0, 0.6);
+  border-radius: 1px;
+  background: transparent;
+}
+
+/* 提示文字 - 加载时直接显示 */
+.antenna-hint {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #666;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
 }
 
 @keyframes antennaBreathe {
