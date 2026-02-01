@@ -19,6 +19,8 @@ interface RobotHeadProps {
   antennaBallColor?: string | string[];
   /** 嘴巴位置变化回调（返回嘴巴中心的屏幕坐标） */
   onMouthPositionChange?: (centerX: number, centerY: number) => void;
+  /** 旋转方向（度），正值=顺时针，负值=逆时针 */
+  rotateDirection?: number;
   /** 子元素扩展 */
   children?: ReactNode;
 }
@@ -26,6 +28,7 @@ interface RobotHeadProps {
 /**
  * 机器人头部组件
  * 包含天线、耳朵、脸部屏幕（眼睛+嘴巴）
+ * 使用 wrapper 分离阴影（不旋转）和头部（可旋转）
  */
 export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
   isRotated,
@@ -36,6 +39,7 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
   eyeLookDirection = null,
   antennaBallColor,
   onMouthPositionChange,
+  rotateDirection = 90,
   children,
 }, ref) => {
   const mouthRef = useRef<HTMLDivElement>(null);
@@ -56,38 +60,50 @@ export const RobotHead = forwardRef<HTMLDivElement, RobotHeadProps>(({
     return () => clearTimeout(timer);
   }, [isMouthOpen, onMouthPositionChange, isRotated]);
   
+  // 动态计算旋转变换（只应用于内部头部，不影响阴影）
+  const headInnerStyle: React.CSSProperties = isRotated
+    ? { transform: `rotateZ(${rotateDirection}deg)` }
+    : {};
+  
   return (
+    // 外层 wrapper 不旋转，持有基于光源的阴影
     <div 
       ref={ref}
-      className={`robot-head ${isRotated ? 'rotated' : ''}`} 
+      className="robot-head-wrapper"
       onClick={onClick}
     >
-      {/* 天线 */}
-      <Antenna ballColor={antennaBallColor} />
+      {/* 内层头部可旋转 */}
+      <div 
+        className={`robot-head ${isRotated ? 'rotated' : ''}`} 
+        style={headInnerStyle}
+      >
+        {/* 天线 */}
+        <Antenna ballColor={antennaBallColor} />
 
-      {/* 头壳 */}
-      <div className="head-body">
-        {/* 左耳 */}
-        <div className="ear ear-left" />
-        {/* 右耳 */}
-        <div className="ear ear-right" />
+        {/* 头壳 */}
+        <div className="head-body">
+          {/* 左耳 */}
+          <div className="ear ear-left" />
+          {/* 右耳 */}
+          <div className="ear ear-right" />
 
-        {/* 脸部屏幕 */}
-        <div className="face-screen">
-          {/* 眼睛 - 独立管理眨眼动画 */}
-          <Eyes 
-            mode={eyeMode}
-            blinkInterval={blinkInterval}
-            lookDirection={eyeLookDirection}
-          />
-          {/* 嘴巴 */}
-          <div 
-            ref={mouthRef}
-            className={`mouth ${isMouthOpen ? 'open' : ''}`} 
-          />
+          {/* 脸部屏幕 */}
+          <div className="face-screen">
+            {/* 眼睛 - 独立管理眨眼动画 */}
+            <Eyes 
+              mode={eyeMode}
+              blinkInterval={blinkInterval}
+              lookDirection={eyeLookDirection}
+            />
+            {/* 嘴巴 */}
+            <div 
+              ref={mouthRef}
+              className={`mouth ${isMouthOpen ? 'open' : ''}`} 
+            />
+          </div>
+
+          {children}
         </div>
-
-        {children}
       </div>
     </div>
   );

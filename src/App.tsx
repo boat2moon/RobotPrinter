@@ -11,17 +11,19 @@ function App() {
     <div className="app">
       <header className="header">
         <h1>ROBOT NOTES</h1>
-        <p>Click the robot to spit out a note.</p>
+        <p>Drag the robot around. Click to spit out a note.</p>
       </header>
 
-      {/* 底部停靠的机器人 */}
-      <div className="bottom-dock">
-        <RobotPrinter
-          placeholder="输入记录..."
-          onSubmit={handleSubmit}
-          paperWidth={500}
-        />
-      </div>
+      {/* 可拖拽机器人 - 测试位置自适应 */}
+      <RobotPrinter
+        draggable={true}
+        defaultPosition={{ x: window.innerWidth - 100, y: window.innerHeight - 100 }}
+        tiltStrength={2}
+        shadowStrength={1.75}
+        placeholder="输入记录..."
+        onSubmit={handleSubmit}
+        paperWidth={600}
+      />
     </div>
   );
 }

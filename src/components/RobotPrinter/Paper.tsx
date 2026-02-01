@@ -5,8 +5,10 @@ interface PaperProps {
   isExpanded: boolean;
   /** 纸条宽度(px) */
   width?: number;
-  /** 右侧偏移量(px) */
-  rightOffset?: number;
+  /** 偏移量(px) - 根据方向决定是 left 还是 right */
+  offset?: number;
+  /** 吐纸方向 */
+  direction?: 'left' | 'right';
   /** 输入框占位符 */
   placeholder?: string;
   /** 输入值 */
@@ -19,12 +21,13 @@ interface PaperProps {
 
 /**
  * 纸条组件
- * 包含输入框和装饰线
+ * 支持向左或向右展开
  */
 export const Paper = forwardRef<HTMLInputElement, PaperProps>(({
   isExpanded,
   width = 500,
-  rightOffset = 85,
+  offset = 85,
+  direction = 'left',
   placeholder = '输入记录...',
   value,
   onChange,
@@ -36,12 +39,17 @@ export const Paper = forwardRef<HTMLInputElement, PaperProps>(({
     }
   };
 
+  // 根据方向设置位置样式
+  const positionStyle: React.CSSProperties = direction === 'left'
+    ? { right: `${offset}px` }
+    : { left: `${offset}px` };
+
   return (
     <div
-      className={`paper ${isExpanded ? 'expanded' : 'collapsed'}`}
+      className={`paper ${isExpanded ? 'expanded' : 'collapsed'} direction-${direction}`}
       style={{ 
         '--paper-width': `${width}px`,
-        right: `${rightOffset}px`
+        ...positionStyle,
       } as React.CSSProperties}
     >
       <div className="paper-content">

@@ -8,7 +8,15 @@
   align-items: center;
   height: 140px;
   padding-right: 20px;
-  perspective: 800px;
+  /* 降低 perspective 让 3D 效果更明显 */
+  perspective: 400px;
+}
+
+/* 可拖拽模式 */
+.robot-printer.draggable {
+  padding: 0;
+  height: auto;
+  user-select: none;
 }
 
 /* ======================================== 
@@ -17,33 +25,38 @@
 
 .paper {
   position: absolute;
-  /* right 由 JS 动态计算设置，与嘴巴位置对齐 */
   top: 50%;
   transform: translateY(-50%) rotateX(25deg);
   height: 60px;
-  
-  /* 纸张底色 - 必须用background-color确保不透明 */
+
   background-color: #fdfdfd;
-  
-  /* 纸张渐变边缘 */
-  background-image: 
-    linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 8%),
-    linear-gradient(to top, rgba(0,0,0,0.05) 0%, transparent 8%);
-  
+  background-image:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 0%, transparent 8%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.05) 0%, transparent 8%);
+
   border-radius: 4px;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.12),
     0 1px 3px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     inset 0 -1px 0 rgba(0, 0, 0, 0.05);
-  transform-origin: right center;
   overflow: hidden;
-  z-index: 15; /* 纸条在机器人嘴巴之上 */
+  z-index: 15;
 
-  /* 动画状态 */
   width: 0;
-  opacity: 1; /* 始终不透明，只有宽度动画 */
-  transition: width var(--paper-duration, 600ms) cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 1;
+  transition: width var(--paper-duration, 600ms)
+    cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 向左展开（默认，机器人在右侧时） */
+.paper.direction-left {
+  transform-origin: right center;
+}
+
+/* 向右展开（机器人在左侧时） */
+.paper.direction-right {
+  transform-origin: left center;
 }
 
 .paper.expanded {
@@ -52,7 +65,8 @@
 
 .paper.collapsed {
   width: 0;
-  transition: width calc(var(--paper-duration, 600ms) * 0.8) cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width calc(var(--paper-duration, 600ms) * 0.8)
+    cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .paper-content {
@@ -74,7 +88,7 @@
   outline: none;
   font-size: 18px;
   color: #2c3e50;
-  font-family: 'KaiTi', 'STKaiti', '楷体', 'Georgia', serif;
+  font-family: "KaiTi", "STKaiti", "楷体", "Georgia", serif;
   font-weight: 500;
   letter-spacing: 0.5px;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
@@ -116,49 +130,73 @@
    机器人头部样式 
    ======================================== */
 
-.robot-head {
+/* 外层 wrapper - 不旋转，持有基于固定光源的阴影 */
+.robot-head-wrapper {
   position: relative;
   cursor: pointer;
   z-index: 10;
+  /* 
+   * drop-shadow 基于元素轮廓生成阴影
+   * 阴影方向由 CSS 变量控制，不随内部元素旋转
+   * 基础偏移 (5px, 5px) 保持对称，由动态偏移调整方向
+   */
+  filter: 
+    drop-shadow(
+      calc(5px + var(--shadow-x, 0px)) 
+      calc(5px + var(--shadow-y, 0px)) 
+      8px 
+      rgba(0, 0, 0, 0.2)
+    );
+  transition: filter var(--rotate-duration, 400ms) ease;
+}
+
+.robot-head-wrapper:hover {
+  filter: 
+    drop-shadow(
+      calc(5px + var(--shadow-x, 0px)) 
+      calc(5px + var(--shadow-y, 0px)) 
+      8px 
+      rgba(0, 0, 0, 0.2)
+    )
+    brightness(1.02);
+}
+
+/* 可拖拽时鼠标样式 */
+.robot-printer.draggable .robot-head-wrapper {
+  cursor: grab;
+}
+
+.robot-printer.draggable .robot-head-wrapper:active {
+  cursor: grabbing;
+}
+
+/* 内层头部 - 可旋转，带3D倾斜 */
+.robot-head {
+  position: relative;
   transform-style: preserve-3d;
   /* 
-   * 沿AC对角线（左上-右下）旋转：
-   * - rotateX(12deg): 顶部向内，底部向外凸出
-   * - rotateY(-12deg): 左侧向内，右侧向外凸出
-   * 组合效果：右下角(B)向外凸出，左上角(D)向内，形成朝向页面中心的视角
+   * 使用 CSS 变量实现动态倾斜：
+   * translateZ 增加深度感
    */
-  transform: rotateX(12deg) rotateY(-12deg) rotateZ(0deg);
+  transform: 
+    translateZ(20px)
+    rotateX(var(--tilt-x, 12deg)) 
+    rotateY(var(--tilt-y, -12deg)) 
+    rotateZ(0deg);
   transition: transform var(--rotate-duration, 400ms) cubic-bezier(0.34, 1.2, 0.64, 1);
 }
 
-/* 旋转90度后的状态（顺时针，嘴巴朝左，无倾斜） */
-.robot-head.rotated {
-  transform: rotateZ(90deg);
-}
+/* 旋转后的状态由 JS 内联样式控制 */
 
-.robot-head:hover {
-  filter: brightness(1.02);
-}
-
-.robot-head:active {
-  filter: brightness(0.98);
-}
-
-/* 头壳 - 复古米色 */
+/* 头壳 - 复古米色（无外部阴影，由 wrapper 的 drop-shadow 提供） */
 .head-body {
   position: relative;
   width: 100px;
   height: 85px;
-  background: linear-gradient(
-    145deg,
-    #ebe4d4 0%,
-    #e0d8c0 50%,
-    #d5cdb8 100%
-  );
+  background: linear-gradient(145deg, #ebe4d4 0%, #e0d8c0 50%, #d5cdb8 100%);
   border-radius: 12px;
+  /* 仅保留内阴影，外阴影由 wrapper 提供 */
   box-shadow:
-    4px 6px 12px rgba(0, 0, 0, 0.15),
-    2px 3px 6px rgba(0, 0, 0, 0.1),
     inset -2px -2px 6px rgba(0, 0, 0, 0.08),
     inset 2px 2px 6px rgba(255, 255, 255, 0.6);
 }
@@ -170,26 +208,20 @@
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  flex-direction: column-reverse; /* 反转顺序，小球在顶部 */
+  flex-direction: column-reverse;
   align-items: center;
 }
 
 .antenna-stem {
   width: 4px;
   height: 20px;
-  background: linear-gradient(
-    to right,
-    #444 0%,
-    #666 50%,
-    #444 100%
-  );
+  background: linear-gradient(to right, #444 0%, #666 50%, #444 100%);
   border-radius: 1px;
 }
 
 .antenna-ball {
   width: 14px;
   height: 14px;
-  /* background 由 prop 控制，支持单色或渐变 */
   border-radius: 50%;
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.2),
@@ -204,12 +236,7 @@
   transform: translateY(-50%);
   width: 12px;
   height: 24px;
-  background: linear-gradient(
-    to bottom,
-    #666 0%,
-    #555 50%,
-    #444 100%
-  );
+  background: linear-gradient(to bottom, #666 0%, #555 50%, #444 100%);
   border-radius: 6px;
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.3),
@@ -232,12 +259,7 @@
   transform: translate(-50%, -45%);
   width: 75px;
   height: 50px;
-  background: linear-gradient(
-    135deg,
-    #1a1a1a 0%,
-    #111 50%,
-    #0a0a0a 100%
-  );
+  background: linear-gradient(135deg, #1a1a1a 0%, #111 50%, #0a0a0a 100%);
   border-radius: 6px;
   box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.5),
@@ -302,13 +324,13 @@
   animation: eyePulse 1.2s ease-in-out infinite;
 }
 
-/* 右眼延迟动画，形成交错效果 */
 .eye.eye-right.loading {
   animation-delay: 0.4s;
 }
 
 @keyframes eyePulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     box-shadow:
       0 0 8px #00ffcc,
@@ -326,24 +348,22 @@
 
 /* 嘴巴 - 支持张嘴动画 */
 .mouth {
-  /* 使用flex布局自动定位，不再用绝对定位 */
   width: 12px;
   height: 4px;
   background: #444;
   border-radius: 2px;
-  transition: 
+  transition:
     width 0.2s ease,
     height 0.2s ease,
     border-radius 0.2s ease,
     background 0.2s ease;
 }
 
-/* 张嘴状态 - 旋转90°后显示为细长竖条 */
 .mouth.open {
-  width: 65px;  /* 旋转后变成高度 */
-  height: 10px; /* 旋转后变成宽度 */
+  width: 65px;
+  height: 10px;
   border-radius: 3px;
-  background: #444; /* 保持原嘴巴颜色 */
+  background: #444;
 }
 
 /* ======================================== 
@@ -361,4 +381,9 @@
   opacity: 0.7;
   pointer-events: none;
   letter-spacing: 0.5px;
+}
+
+/* 可拖拽模式下提示位置调整 */
+.robot-printer.draggable .hint {
+  bottom: -25px;
 }
