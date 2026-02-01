@@ -5,6 +5,8 @@ interface AntennaProps {
   loading?: boolean;
   /** 点击小球回调（用于终止请求） */
   onBallClick?: () => void;
+  /** 头部旋转角度（用于文本反向旋转保持水平） */
+  rotation?: number;
 }
 
 /**
@@ -16,6 +18,7 @@ export function Antenna({
   ballColor = ['#ff6b6b', '#e74c3c', '#c0392b'],
   loading = false,
   onBallClick,
+  rotation = 0,
 }: AntennaProps) {
   const ballBackground = Array.isArray(ballColor)
     ? `radial-gradient(circle at 30% 30%, ${ballColor.join(', ')})`
@@ -54,9 +57,14 @@ export function Antenna({
         <div className="stop-icon" />
       </div>
       
-      {/* 加载时的文字提示 */}
+      {/* 加载时的文字提示 - 反向旋转以保持水平 */}
       {loading && (
-        <span className="antenna-tip">点击停止</span>
+        <span 
+          className="antenna-tip"
+          style={{ transform: `translateX(-50%) rotate(${-rotation}deg)` }}
+        >
+          点击停止
+        </span>
       )}
     </div>
   );

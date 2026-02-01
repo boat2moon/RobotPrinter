@@ -637,7 +637,7 @@
   width: 6px;
   height: 6px;
   background-color: transparent;
-  border: 1.5px solid rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
   border-radius: 1px;
   opacity: 0;
   transform: scale(0);
@@ -653,7 +653,7 @@
   transform: translateX(-50%);
   margin-bottom: 8px;
   font-size: 11px;
-  color: #a0aec0;
+  color: #718096;
   white-space: nowrap;
   pointer-events: none;
   letter-spacing: 0.5px;
