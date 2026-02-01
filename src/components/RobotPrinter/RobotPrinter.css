@@ -121,8 +121,13 @@
   cursor: pointer;
   z-index: 10;
   transform-style: preserve-3d;
-  /* 初始状态：略微朝向左上方 */
-  transform: rotateX(18deg) rotateY(8deg) rotateZ(0deg);
+  /* 
+   * 沿AC对角线（左上-右下）旋转：
+   * - rotateX(12deg): 顶部向内，底部向外凸出
+   * - rotateY(-12deg): 左侧向内，右侧向外凸出
+   * 组合效果：右下角(B)向外凸出，左上角(D)向内，形成朝向页面中心的视角
+   */
+  transform: rotateX(12deg) rotateY(-12deg) rotateZ(0deg);
   transition: transform var(--rotate-duration, 400ms) cubic-bezier(0.34, 1.2, 0.64, 1);
 }
 
