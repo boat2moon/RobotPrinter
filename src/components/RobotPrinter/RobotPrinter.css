@@ -608,6 +608,10 @@
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
+  /* 扩大点击区域，确保事件能被捕获 */
+  padding: 14px 10px 0;
+  margin: -14px -10px 0;
+  cursor: default;
 }
 
 .antenna-stem {
