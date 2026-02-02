@@ -1,92 +1,4 @@
-/* 全局样式重置 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  background-color: #f0f2f5;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
-    'Microsoft YaHei', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-  transition: background-color 0.3s ease;
-}
-
-/* 深色主题 */
-body.dark {
-  background-color: #1a1a2e;
-}
-
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.header {
-  padding: 60px 20px;
-  text-align: center;
-  color: #a0aec0;
-  transition: color 0.3s ease;
-}
-
-.app.dark .header {
-  color: #8899aa;
-}
-
-.header h1 {
-  font-weight: 300;
-  letter-spacing: 2px;
-  margin-bottom: 12px;
-  font-size: 2rem;
-}
-
-.header p {
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-/* 主题切换按钮 */
-.theme-toggle {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: none;
-  background: linear-gradient(145deg, #ffffff, #e6e6e6);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  z-index: 9999;
-}
-
-.theme-toggle:hover {
-  transform: scale(1.1);
-  box-shadow: 
-    0 6px 16px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.app.dark .theme-toggle {
-  background: linear-gradient(145deg, #2d2d44, #1a1a2e);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* 底部停靠区域 */
-
-/* 基准框 */
+/* 基准框样式 */
 .reference-box {
   position: absolute;
   min-height: 80px;
@@ -103,7 +15,12 @@ body.dark {
   user-select: none;
 }
 
-.dark .reference-box {
+/* 深色模式适配 */
+/* 注意：由于组件内没有 .dark 类，通常依附于全局 body.dark 或父级 */
+/* 为保证组件独立性，这里假设父级或全局有 .dark 类影响 CSS 变量，或者通过 context 传递 */
+/* 但为了兼容现有 App.css 写法，我们使用 :global(.dark) 或者父级选择器 */
+/* 在 React 中如果不仅是 module css，可以直接写 */
+body.dark .reference-box {
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.05);
 }
@@ -122,7 +39,7 @@ body.dark {
   width: 100%;
 }
 
-.dark .box-content {
+body.dark .box-content {
   color: #aaa;
 }
 
@@ -170,7 +87,7 @@ body.dark {
   color: #333;
 }
 
-.dark .control-item input[type="number"] {
+body.dark .control-item input[type="number"] {
   background: #2d2d44;
   border-color: #444;
   color: #eee;

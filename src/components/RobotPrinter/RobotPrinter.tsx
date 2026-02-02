@@ -64,6 +64,10 @@ export interface RobotPrinterProps {
   expanded?: boolean;
   /** 展开状态变化时的回调 */
   onExpandedChange?: (expanded: boolean) => void;
+  /** 外部控制位置（可选，传入则为受控模式） */
+  position?: Position;
+  /** 位置变化时的回调 */
+  onPositionChange?: (position: Position) => void;
   /** 是否深色模式（深色模式默认睡眠，浅色模式默认清醒） */
   isDark?: boolean;
 }
@@ -143,6 +147,8 @@ export function RobotPrinter({
   infoContent,
   expanded,
   onExpandedChange,
+  position: controlledPosition,
+  onPositionChange,
   isDark = false,
 }: RobotPrinterProps) {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
@@ -150,9 +156,11 @@ export function RobotPrinter({
   const [paperOffset, setPaperOffset] = useState(85);
   
   // 位置状态（仅拖拽模式使用）
-  const [position, setPosition] = useState<Position>(() => 
+  const [internalPosition, setInternalPosition] = useState<Position>(() => 
     defaultPosition || { x: window.innerWidth - 100, y: window.innerHeight - 100 }
   );
+
+  const position = controlledPosition ?? internalPosition;
   
   // 拖拽状态
   const [isDragging, setIsDragging] = useState(false);
@@ -288,10 +296,16 @@ export function RobotPrinter({
       const deltaX = e.clientX - dragStartRef.current.x;
       const deltaY = e.clientY - dragStartRef.current.y;
       
-      setPosition({
+      const newPos = {
         x: dragStartRef.current.posX + deltaX,
         y: dragStartRef.current.posY + deltaY,
-      });
+      };
+
+      if (onPositionChange) {
+        onPositionChange(newPos);
+      } else {
+        setInternalPosition(newPos);
+      }
     };
     
     const handleMouseUp = (e: MouseEvent) => {

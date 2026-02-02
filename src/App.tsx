@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
-import { RobotPrinter } from './components/RobotPrinter';
+import { RobotPrinter, type Position } from './components/RobotPrinter';
+import { ReferenceBox } from './components/ReferenceBox';
 import './App.css';
 
 function App() {
@@ -10,6 +11,18 @@ function App() {
   
   // 外部控制展开状态（演示受控模式）
   const [expanded, setExpanded] = useState(false);
+
+  // 外部控制位置和宽度（基准框吸附功能）
+  // 外部控制位置和宽度（基准框吸附功能）
+  const [currentPosition, setCurrentPosition] = useState<Position | undefined>(undefined);
+  const [paperWidth, setPaperWidth] = useState(600);
+  
+  // 基准框状态
+  // 基准框状态
+  const [boxWidth, setBoxWidth] = useState(800);
+  const [boxPosition, setBoxPosition] = useState({ x: window.innerWidth / 2 - 400, y: 225 }); // y: 280 避开顶部 Header
+  // 是否包含天线宽度 (对齐偏好)
+  const [includeAntenna, setIncludeAntenna] = useState(true);
   
   // 主题切换（默认浅色）
   const [isDark, setIsDark] = useState(false);
@@ -69,6 +82,65 @@ function App() {
     setResult(prev => ({ ...prev, loading: false }));
   };
 
+  // 执行吸附逻辑（纯函数式，基于传入宽度）
+  const executeDock = (targetBoxWidth: number, shouldIncludeAntenna: boolean = includeAntenna) => {
+    const screenCenter = window.innerWidth / 2;
+    // 基准框中心
+    const boxCenter = boxPosition.x + targetBoxWidth / 2;
+    
+    // 判断基准框在屏幕左侧还是右侧
+    const isDockLeft = boxCenter < screenCenter;
+
+    let targetX: number;
+    
+    // 修正对齐 (Based on Mathematical Derivation - Zero Gap):
+    // Mode A (Include Antenna): Offset = 77px (Antenna Tip)
+    // Mode B (Ignore Antenna): Offset = 43px (Head Scalp, 42.5 rounded up)
+    const offset = shouldIncludeAntenna ? 77 : 43;
+
+    if (isDockLeft) {
+      // Robot Dock at Left Edge of Box
+      targetX = boxPosition.x + offset;
+    } else {
+      // Robot Dock at Right Edge of Box (Default)
+      targetX = boxPosition.x + targetBoxWidth - offset;
+    }
+
+    // 计算目标纸条宽度 (Derived Formula - Zero Gap):
+    // Mode A (Include Antenna): BoxWidth - 92.
+    // Mode B (Ignore Antenna):
+    //   Robot moves RIGHT by (77 - 43) = 34px.
+    //   To keep Paper Left Edge stationary (at Box Left), Paper Width must INCREASE by 34px.
+    //   Width = (BoxWidth - 92) + 34 = BoxWidth - 58.
+    const targetPaperWidth = shouldIncludeAntenna 
+      ? targetBoxWidth - 92 
+      : targetBoxWidth - 58;
+    
+    // 3. 目标Y坐标 (基准框下方)
+    const targetY = boxPosition.y + 120 + 80; // 120 is fixed height
+    
+    // 执行变更
+    setPaperWidth(targetPaperWidth);
+    setCurrentPosition({ x: targetX, y: targetY });
+    setExpanded(true); // 自动展开
+  };
+
+  // 切换天线包含模式
+  const handleToggleAntenna = (checked: boolean) => {
+    setIncludeAntenna(checked);
+    // 立即以新模式重新吸附
+    executeDock(boxWidth, checked);
+  };
+  
+  // 宽度变更处理 (Enter 触发)
+  const handleWidthChange = (newWidth: number) => {
+    setBoxWidth(newWidth);
+    executeDock(newWidth);
+  };
+
+
+
+
   return (
     <div className={`app ${isDark ? 'dark' : ''}`}>
       {/* 主题切换按钮 */}
@@ -91,15 +163,28 @@ function App() {
         </button>
       </header>
 
+      {/* 基准框 - 可拖拽可调整宽度 */}
+      <ReferenceBox 
+        width={boxWidth}
+        onWidthChange={handleWidthChange}
+        position={boxPosition}
+        onPositionChange={setBoxPosition}
+        includeAntenna={includeAntenna}
+        onIncludeAntennaChange={handleToggleAntenna}
+        onDock={() => executeDock(boxWidth)}
+      />
+
       {/* 可拖拽机器人 - 完整功能演示 */}
       <RobotPrinter
         draggable={true}
         defaultPosition={{ x: window.innerWidth - 100, y: window.innerHeight - 100 }}
+        position={currentPosition}
+        onPositionChange={setCurrentPosition}
         tiltStrength={2}
         shadowStrength={1.5}
         placeholder="输入记录..."
         onSubmit={handleSubmit}
-        paperWidth={600}
+        paperWidth={paperWidth}
         loading={loading}
         onAbort={handleAbort}
         delay={delay}
