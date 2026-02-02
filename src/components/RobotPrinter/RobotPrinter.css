@@ -698,12 +698,19 @@
   position: relative;
   width: 100px;
   height: 85px;
-  background: linear-gradient(145deg, #ebe4d4 0%, #e0d8c0 50%, #d5cdb8 100%);
+  /* 动态光照: 渐变角度跟随光源 */
+  background: linear-gradient(
+    var(--grad-angle, 145deg), 
+    #ebe4d4 0%, 
+    #e0d8c0 50%, 
+    #d5cdb8 100%
+  );
   border-radius: 12px;
-  /* 仅保留内阴影，外阴影由 wrapper 提供 */
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  /* 动态光照: 内阴影偏移跟随光源 */
   box-shadow:
-    inset -2px -2px 6px rgba(0, 0, 0, 0.08),
-    inset 2px 2px 6px rgba(255, 255, 255, 0.6);
+    inset var(--shadow-inset-x, -2px) var(--shadow-inset-y, -2px) 6px rgba(0, 0, 0, 0.08),
+    inset var(--highlight-x, 2px) var(--highlight-y, 2px) 6px rgba(255, 255, 255, 0.6);
 }
 
 /* 天线 */
@@ -732,19 +739,35 @@
     0 2px 4px rgba(0, 0, 0, 0.2),
     inset -2px -2px 4px rgba(0, 0, 0, 0.2),
     inset 2px 2px 4px rgba(255, 255, 255, 0.3);
-  transition: box-shadow 0.3s ease;
+  /* 增加 background 过渡以支持颜色平滑切换 */
+  transition: 
+    box-shadow 0.3s ease,
+    background 0.3s ease,
+    width 0.3s ease,
+    height 0.3s ease,
+    transform 0.3s ease,
+    border 0.3s ease;
 }
 
 /* 天线小球加载状态 - 放大显示停止图标 */
 .antenna-ball.loading {
   cursor: pointer;
-  width: 22px;
-  height: 22px;
+  width: 27px;
+  height: 27px;
+  /* 增加同款边框 - 加深透明度以避免由底色透出的绿色感 */
+  border: 1px solid rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   animation: antennaBreathe 1.2s ease-in-out infinite;
-  transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
+  /* 保持与非 loading 态一致的过渡设置 */
+  transition: 
+    box-shadow 0.3s ease,
+    background 0.3s ease,
+    width 0.3s ease,
+    height 0.3s ease,
+    transform 0.3s ease,
+    border 0.3s ease;
 }
 
 .antenna-ball.loading:hover {
@@ -753,9 +776,9 @@
 
 /* 停止图标 - 小正方形，黑色轮廓无填充 */
 .antenna-ball .stop-icon {
-  width: 8px;
-  height: 8px;
-  border: 2px solid rgba(0, 0, 0, 0.6);
+  width: 9px;
+  height: 9px;
+  border: 1.9px solid rgba(0, 0, 0, 0.7);
   border-radius: 1px;
   background: transparent;
 }
@@ -917,7 +940,7 @@
 
 /* 睡眠模式 - 眼睛闭合成一条线 */
 .eye.sleeping {
-  transform: scaleY(0.1);
+  transform: scaleY(0.1) scaleX(1.3);
   animation: sleepingGlow 3s ease-in-out infinite;
 }
 

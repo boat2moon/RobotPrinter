@@ -6,7 +6,7 @@
 
 可用于 AI 对话、快捷指令、数据处理中间件等场景，自带独特的动画效果和交互体验。
 
-展示页：[www.boat2moon.com/robot-printer](https://www.boat2moon.com/robot-printer)
+展示页：[www.boat2moon.com/robot-printer](https://ai-island.boat2moon.com)
 
 ## ✨ 特性
 

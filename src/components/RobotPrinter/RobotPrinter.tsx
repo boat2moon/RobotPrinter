@@ -423,6 +423,94 @@ export function RobotPrinter({
   const shadowX = shadowOffsetX + Math.sign(shadowOffsetX || 1) * minShadow;
   const shadowY = shadowOffsetY + Math.sign(shadowOffsetY || 1) * minShadow;
 
+  // 动态内部光影（材质光照跟随）
+  // 计算机器人中心相对于屏幕中心的向量
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+  const relX = position.x - centerX;
+  const relY = position.y - centerY;
+  
+  // 计算梯度角度 (0deg = Up, 90deg = Right)
+  // 光源在中心，所以梯度方向是 Robot -> Center? 不，Background gradient 是亮->暗
+  // 所以方向应该是 Light -> Dark，即 Center -> Robot (Away from light)
+  const angleRad = Math.atan2(relY, relX);
+  const angleDeg = (angleRad * 180 / Math.PI) + 90; // +90 to match CSS gradient (0deg=Up)
+
+  // 计算内阴影偏移
+  // Light is at Center.
+  // Highlight (White) should be on side FACING center.
+  // Shadow (Dark) should be on side AWAY from center.
+  // 'inset x y' moves shadow image right/down.
+  // x>0 puts shadow on Left wall.
+  // So if Light is Right (relX < 0), we want Highlight on Right wall -> inset -x -y.
+  // Let's use normalized vector.
+  const dist = Math.sqrt(relX * relX + relY * relY) || 1;
+  const normX = relX / dist;
+  const normY = relY / dist;
+  
+  // 强度系数
+  const insetStrength = 2; 
+  
+  // 暗部内阴影 (出现在背光面)
+  // 背光面是 Robot -> Away 向量方向的面。即 (normX, normY)
+  // 想要暗部出现在右下(假设 robot 在左上)，向量是 (+, +)
+  // inset +,+ puts shadow on Left/Top? No.
+  // inset 10px 0: shadow shifted right. Left edge exposed? Or Left part of box covered?
+  // inset shadow: "Everything outside the box casts a shadow inside".
+  // Light from Left -> Shadow on Right inner wall? No, Shadow on Left inner wall?
+  // Think of a hole. Light from Left. Left wall is lit. Right wall is dark.
+  // So Highlight on Left (inset +?), Dark on Right (inset -?).
+  // Let's stick to: Highlight Vector = -DirectionToLight. Dark Vector = DirectionToLight.
+  // DirectionToLight = -RelPos.
+  // Highlight Vector = RelPos (Away from light).
+  // Dark Vector = -RelPos (Towards light).
+  
+  // Wait, visual test:
+  // Robot at BR (rel +, +). Light at TL.
+  // Lit surface: TL. Dark surface: BR.
+  // Lit surface TL needs Highlight.
+  // Dark surface BR needs Shadow.
+  
+  // If `inset 2px 2px white` -> Highlight on TL?
+  // Let's assume standard behavior: `inset + +` = Highlight on TL (if white).
+  // So if Light is TL (Robot BR), we want `inset + +`.
+  // Robot BR has rel (+, +).
+  // So Highlight Offset should be positive when rel is positive?
+  // Yes.
+  
+  // Determine Shadow (Dark) Offset.
+  // We want Shadow on BR.
+  // `inset - - black` -> Shadow on BR?
+  // If `inset -10 -10`, shadow shifted Left/Up.
+  // The hole is revealed at Bottom/Right.
+  // So `inset - -` puts "shadow paint" on TL? No.
+  // `inset` is tricky.
+  // Let's use the static values as reference.
+  // Static: top-left light.
+  // `inset 2px 2px 6px white` -> Highlight. Matches TL light.
+  // `inset -2px -2px 6px black` -> Shadow. Matches BR dark.
+  
+  // So:
+  // Highlight Offset should align with Light Direction?
+  // Light is TL (-,- relative to robot frame? No, TL of screen).
+  // If Light is TL, we use `+ +`.
+  // Vector ToLight is TL (-1, -1).
+  // So Highlight = -ToLight * k.
+  // ToLight = (-relX, -relY).
+  // Highlight = (relX, relY) * k.
+  
+  // Dark Offset should align with Away Direction?
+  // Dark is BR (1, 1).
+  // We used `- -` for Dark.
+  // So Dark = -Away * k?
+  // Away = (relX, relY).
+  // Dark = (-relX, -relY) * k.
+  
+  const highlightX = normX * insetStrength;
+  const highlightY = normY * insetStrength;
+  const shadowInsetX = -normX * insetStrength;
+  const shadowInsetY = -normY * insetStrength;
+
   // 容器样式
   const containerStyle: React.CSSProperties = {
     '--rotate-duration': `${rotateDuration}ms`,
@@ -432,6 +520,12 @@ export function RobotPrinter({
     '--rotate-direction': `${rotateDirection}deg`,
     '--shadow-x': `${shadowX}px`,
     '--shadow-y': `${shadowY}px`,
+    // 动态材质光照
+    '--grad-angle': `${angleDeg}deg`,
+    '--highlight-x': `${highlightX}px`,
+    '--highlight-y': `${highlightY}px`,
+    '--shadow-inset-x': `${shadowInsetX}px`,
+    '--shadow-inset-y': `${shadowInsetY}px`,
     ...(draggable ? {
       position: 'fixed',
       left: position.x,
