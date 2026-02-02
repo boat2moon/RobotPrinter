@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
 import { RobotPrinter } from './components/RobotPrinter';
 import './App.css';
@@ -10,6 +10,14 @@ function App() {
   
   // 外部控制展开状态（演示受控模式）
   const [expanded, setExpanded] = useState(false);
+  
+  // 主题切换（默认浅色）
+  const [isDark, setIsDark] = useState(false);
+  
+  // 根据主题切换 body 类名
+  useEffect(() => {
+    document.body.classList.toggle('dark', isDark);
+  }, [isDark]);
   
   // 模拟结果面板
   const [result, setResult] = useState({
@@ -62,7 +70,16 @@ function App() {
   };
 
   return (
-    <div className="app">
+    <div className={`app ${isDark ? 'dark' : ''}`}>
+      {/* 主题切换按钮 */}
+      <button 
+        className="theme-toggle"
+        onClick={() => setIsDark(prev => !prev)}
+        title={isDark ? '切换到浅色模式' : '切换到深色模式'}
+      >
+        {isDark ? '☀️' : '🌙'}
+      </button>
+      
       <header className="header">
         <h1>ROBOT NOTES</h1>
         <p>Drag the robot around. Click to spit out a note.</p>

@@ -338,28 +338,92 @@
 .paper {
   position: absolute;
   top: 50%;
-  /* 不再使用 3D 旋转，改用 2D 裁剪实现斜边效果 */
   transform: translateY(-50%);
   height: 60px;
 
   background-color: #fdfdfd;
   background-image:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 0%, transparent 8%),
-    linear-gradient(to top, rgba(0, 0, 0, 0.05) 0%, transparent 8%);
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, transparent 12%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.06) 0%, transparent 10%);
 
   border-radius: 4px;
+  
+  /* 
+   * 1. 使用 filter: drop-shadow 替代 box-shadow
+   *    这样阴影会完美贴合 clip-path 裁剪后的斜切形状
+   * 2. 保留 inset box-shadow 用于内部体积感
+   */
+  filter: 
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12))
+    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+    
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.12),
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+    inset 0 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.06);
+
+  /* 上下边框 (斜切处会被 clip-path 裁断，由 ::after 补全) */
+  border-top: 1px solid rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+
+  overflow: visible;
   z-index: 15;
 
   width: 0;
   opacity: 1;
   transition: width var(--paper-duration, 600ms)
     cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 斜切边 "边框" 线 - 左侧 */
+.paper.direction-left::after {
+  content: '';
+  position: absolute;
+  left: 14.5px; /* 起点 X (top) */
+  top: -2px;    /* 稍微延伸以确保连接 */
+  width: 1.5px; /* 边框宽度 */
+  height: 66px; /* 足够长以覆盖斜边 */
+  background: rgba(0, 0, 0, 0.25);
+  transform-origin: top left;
+  transform: rotate(14deg); /* 14度旋转匹配斜率 */
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 斜切边 "边框" 线 - 右侧 */
+.paper.direction-right::after {
+  content: '';
+  position: absolute;
+  right: 14.5px; /* 起点 X (top) */
+  top: -2px;
+  width: 1.5px;
+  height: 66px;
+  background: rgba(0, 0, 0, 0.25);
+  transform-origin: top right;
+  transform: rotate(-14deg); /* -14度旋转匹配斜率 */
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 内部高光/阴影渐变 - 左侧 */
+.paper.direction-left::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 30px;
+  background: linear-gradient(104deg, rgba(0,0,0,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 内部高光/阴影渐变 - 右侧 */
+.paper.direction-right::before {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 30px;
+  background: linear-gradient(-104deg, rgba(0,0,0,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* 向左展开（机器人在右侧时）- 左边斜边 */
@@ -380,10 +444,18 @@
   width: var(--paper-width, 500px);
 }
 
+/* 收拢时隐藏伪元素和边框 */
 .paper.collapsed {
   width: 0;
   transition: width calc(var(--paper-duration, 600ms) * 0.8)
     cubic-bezier(0.4, 0, 0.2, 1);
+  border: none; /* 收拢时移除边框，防止1px残留 */
+}
+
+.paper.collapsed::before,
+.paper.collapsed::after {
+  opacity: 0;
+  transition: opacity 0.1s;
 }
 
 .paper-content {
