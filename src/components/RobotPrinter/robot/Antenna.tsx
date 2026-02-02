@@ -17,9 +17,13 @@ export function Antenna({
   loading = false,
   onBallClick,
 }: AntennaProps) {
-  const ballBackground = Array.isArray(ballColor)
+  // 加载状态时使用绿色，否则使用传入的颜色
+  const defaultBallBackground = Array.isArray(ballColor)
     ? `radial-gradient(circle at 30% 30%, ${ballColor.join(', ')})`
     : ballColor;
+  
+  const loadingBallBackground = 'radial-gradient(circle at 30% 30%, #6dce6d, #4caf50, #388e3c)';
+  const ballBackground = loading ? loadingBallBackground : defaultBallBackground;
 
   // 天线区域始终阻止事件冒泡（包括点击和按下），避免触发机器人转动
   const handleAntennaEvent = (e: React.MouseEvent) => {
