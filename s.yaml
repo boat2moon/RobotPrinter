@@ -31,16 +31,20 @@ resources:
       diskSize: 512
       timeout: 60
       code: ./
+      environmentVariables:
+        PATH: >-
+          /opt/nodejs18/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
+        NODE_PATH: /opt/nodejs/node_modules
+      layers:
+        - acs:fc:cn-hongkong:official:layers/Nodejs18/versions/1
       customRuntimeConfig:
         command:
-          - npm
+          - npx
         args:
-          - run
-          - preview
-          - --
-          - --host
-          - "0.0.0.0"
-          - --port
+          - serve
+          - -s
+          - dist
+          - -l
           - "9000"
         port: 9000
       triggers:
