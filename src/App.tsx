@@ -7,6 +7,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [delay, setDelay] = useState(0);
   
+  // 外部控制展开状态（演示受控模式）
+  const [expanded, setExpanded] = useState(false);
+  
   // 模拟结果面板
   const [result, setResult] = useState({
     visible: false,
@@ -62,6 +65,12 @@ function App() {
       <header className="header">
         <h1>ROBOT NOTES</h1>
         <p>Drag the robot around. Click to spit out a note.</p>
+        <button 
+          onClick={() => setExpanded(prev => !prev)} 
+          style={{ marginTop: 10, padding: '8px 16px', cursor: 'pointer' }}
+        >
+          外部控制：{expanded ? '收起' : '展开'}
+        </button>
       </header>
 
       {/* 可拖拽机器人 - 完整功能演示 */}
@@ -76,6 +85,8 @@ function App() {
         loading={loading}
         onAbort={handleAbort}
         delay={delay}
+        expanded={expanded}
+        onExpandedChange={setExpanded}
         actions={[
           { 
             label: '翻译', 

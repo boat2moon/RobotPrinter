@@ -59,6 +59,10 @@ export interface RobotPrinterProps {
   delay?: number;
   /** 底部提示内容 */
   infoContent?: React.ReactNode;
+  /** 外部控制展开状态（可选，传入则为受控模式） */
+  expanded?: boolean;
+  /** 展开状态变化时的回调 */
+  onExpandedChange?: (expanded: boolean) => void;
 }
 
 // 动画阶段枚举
@@ -134,6 +138,8 @@ export function RobotPrinter({
   onAbort,
   delay = 0,
   infoContent,
+  expanded,
+  onExpandedChange,
 }: RobotPrinterProps) {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [inputValue, setInputValue] = useState(defaultValue);
@@ -187,10 +193,11 @@ export function RobotPrinter({
         setTimeout(() => {
           setPhase('expanded');
           inputRef.current?.focus();
+          onExpandedChange?.(true); // 通知外部展开完成
         }, paperDuration);
       }, 300);
     }, rotateDuration);
-  }, [rotateDuration, paperDuration]);
+  }, [rotateDuration, paperDuration, onExpandedChange]);
 
   // 收起动画序列
   const collapseSequence = useCallback(() => {
@@ -204,10 +211,24 @@ export function RobotPrinter({
         
         setTimeout(() => {
           setPhase('idle');
+          onExpandedChange?.(false); // 通知外部收起完成
         }, rotateDuration);
       }, 200);
     }, paperDuration * 0.8);
-  }, [rotateDuration, paperDuration]);
+  }, [rotateDuration, paperDuration, onExpandedChange]);
+
+  // 响应外部 expanded prop 变化
+  useEffect(() => {
+    if (expanded === undefined) return; // 非受控模式，不处理
+    
+    if (expanded && phase === 'idle') {
+      // 外部要求展开，当前是收起状态
+      expandSequence();
+    } else if (!expanded && phase === 'expanded') {
+      // 外部要求收起，当前是展开状态
+      collapseSequence();
+    }
+  }, [expanded, phase, expandSequence, collapseSequence]);
 
   // 切换展开/收起
   const toggle = useCallback(() => {
