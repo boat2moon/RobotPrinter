@@ -1,4 +1,5 @@
 import React, { forwardRef, useState } from 'react';
+import { toast } from 'sonner';
 
 interface PaperProps {
   /** 是否展开 */
@@ -44,11 +45,19 @@ export const Paper = forwardRef<HTMLInputElement, PaperProps>(({
   const [composition, setComposition] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && value.trim()) {
-      // 如果正在输入法组合中（如拼音输入），不触发请求
+    if (e.key === 'Enter') {
+      // 如果正在输入法组合中（如拼音输入），不触发
       if (composition) return;
       // 加载中不重复提交
       if (loading) return;
+      // 无内容时显示提示
+      if (!value.trim()) {
+        toast.info('请输入内容', {
+          duration: 2000,
+          position: 'top-center',
+        });
+        return;
+      }
       onSubmit?.();
     }
   };
@@ -88,6 +97,29 @@ export const Paper = forwardRef<HTMLInputElement, PaperProps>(({
           onCompositionEnd={() => setComposition(false)}
           disabled={loading}
         />
+        {/* 回车图标提示 */}
+        <div 
+          className={`enter-icon ${loading ? 'loading' : ''}`}
+          onClick={() => {
+            if (loading) return;
+            if (!value.trim()) {
+              toast.info('请输入内容', {
+                duration: 2000,
+                position: 'top-center',
+              });
+              return;
+            }
+            onSubmit?.();
+          }}
+          title={loading ? '加载中...' : '按回车发送'}
+          role="button"
+          tabIndex={0}
+        >
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 5V14C20 15.1046 19.1046 16 18 16H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 20L5 16L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
       </div>
       {/* 纸条装饰线 */}
       <div className="paper-lines">

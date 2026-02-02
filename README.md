@@ -12,7 +12,7 @@
 
 - 🎨 **独特视觉风格** - 3D 机器人头部 + 可展开的复古纸条
 - 🖱️ **可拖拽** - 支持在页面任意位置拖动
-- 📝 **智能交互** - 输入框支持 Enter 提交，**加载时自动锁定**，防止重复提交
+- 📝 **智能交互** - 输入框支持 Enter 提交，**右侧附带回车图标**，加载时自动锁定
 - 🛑 **直观状态** - 眼睛显示加载脉冲/倒计时，**天线变身绿色中止按钮**
 - 😴 **智能睡眠** - 深色模式或长时间无交互自动闭眼休息
 - 🔗 **外部控制** - 支持通过 `expanded` prop 外部控制展开/收起
@@ -153,7 +153,7 @@ Demo: [www.boat2moon.com/robot-printer](https://www.boat2moon.com/robot-printer)
 
 - 🎨 **Unique Visual Style** - 3D robot head + expandable vintage paper slip
 - 🖱️ **Draggable** - Drag anywhere on the page
-- 📝 **Smart Interaction** - Enter to submit, **auto-locks during loading**
+- 📝 **Smart Interaction** - Enter to submit, **visual Enter icon**, auto-locks during loading
 - 🛑 **Intuitive States** - Eyes show loading pulse/countdown, **antenna turns green as abort button**
 - 😴 **Smart Sleep** - Automatically sleeps in dark mode or when idle
 - 🔗 **External Control** - Control expand/collapse via `expanded` prop
