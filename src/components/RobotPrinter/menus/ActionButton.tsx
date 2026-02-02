@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import type { ActionConfig } from './types';
 
 interface ActionButtonProps {
@@ -13,16 +14,16 @@ interface ActionButtonProps {
  * 独立出来以便管理每个按钮的提示状态
  */
 function SubActionButton({ action, inputValue }: { action: ActionConfig, inputValue: string }) {
-  const [showTip, setShowTip] = useState(false);
-
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (action.onClick) {
       action.onClick(inputValue);
     } else {
-      // 无功能时显示提示
-      setShowTip(true);
-      setTimeout(() => setShowTip(false), 1500);
+      // 无功能时显示 toast 提示
+      toast.info('功能待实现', {
+        description: `"${action.label}" 功能正在开发中`,
+        duration: 2000,
+      });
     }
   };
 
@@ -33,21 +34,19 @@ function SubActionButton({ action, inputValue }: { action: ActionConfig, inputVa
       disabled={action.disabled}
     >
       {action.label}
-      {showTip && <span className="action-tip">功能待实现</span>}
     </button>
   );
 }
 
 /**
  * 单个操作按钮组件
- * 支持悬停展开子菜单，以及无功能时的提示反馈
+ * 支持悬停展开子菜单，以及无功能时的 toast 提示
  */
 export function ActionButton({
   action,
   inputValue,
 }: ActionButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [showTip, setShowTip] = useState(false);
   const hasSubActions = action.subActions && action.subActions.length > 0;
 
   const handleClick = (e: React.MouseEvent) => {
@@ -57,9 +56,11 @@ export function ActionButton({
       if (action.onClick) {
         action.onClick(inputValue);
       } else {
-        // 无功能时显示提示
-        setShowTip(true);
-        setTimeout(() => setShowTip(false), 1500);
+        // 无功能时显示 toast 提示
+        toast.info('功能待实现', {
+          description: `"${action.label}" 功能正在开发中`,
+          duration: 2000,
+        });
       }
     }
   };
@@ -78,9 +79,6 @@ export function ActionButton({
         {action.label}
         {hasSubActions && <span className="submenu-indicator">▾</span>}
       </button>
-      
-      {/* 主按钮的提示 */}
-      {showTip && <span className="action-tip">功能待实现</span>}
       
       {/* 二级子菜单 */}
       {hasSubActions && isHovered && (

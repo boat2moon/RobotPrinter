@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Toaster } from 'sonner';
 import { RobotPrinter } from './components/RobotPrinter';
 import './App.css';
 
@@ -125,6 +126,7 @@ function App() {
           </span>
         }
       />
+      <Toaster position="top-center" richColors />
     </div>
   );
 }
