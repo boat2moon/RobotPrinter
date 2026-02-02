@@ -453,7 +453,10 @@
 }
 
 .paper.collapsed::before,
-.paper.collapsed::after {
+.paper.collapsed::after,
+.paper.collapsed .paper-holes,
+.paper.collapsed .paper-lines,
+.paper.collapsed .paper-content {
   opacity: 0;
   transition: opacity 0.1s;
 }
