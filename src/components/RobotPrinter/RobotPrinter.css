@@ -10,6 +10,7 @@
   padding-right: 20px;
   /* 降低 perspective 让 3D 效果更明显 */
   perspective: 400px;
+  z-index: 101; /* Ensure above ReferenceBox (z-index: 100) */
 }
 
 /* 可拖拽模式 */
@@ -78,7 +79,8 @@
 
 .result-panel {
   position: absolute;
-  bottom: calc(50% + 75px); /* action-menu 上方 */
+  /* bottom 由 JS 动态控制，或者使用 classes (.top / .bottom) */
+  /* bottom: calc(50% + 75px);  <-- 移除固定定位 */
   display: flex;
   flex-direction: column;
   background: linear-gradient(145deg, #fff 0%, #f8f6f0 100%);

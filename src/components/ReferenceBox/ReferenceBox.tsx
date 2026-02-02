@@ -90,7 +90,11 @@ export const ReferenceBox = ({
   // 输入框事件
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      const newWidth = parseInt(tempWidth) || 800;
+      let newWidth = parseInt(tempWidth) || 800;
+      if (newWidth < 600) {
+        newWidth = 600;
+        setTempWidth('600');
+      }
       onWidthChange(newWidth); // 提交变更给父组件 (父组件应负责调用 onDock 或其他副作用)
     }
   };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { ActionConfig } from './menus';
 
 /** 结果面板配置 */
@@ -41,14 +41,122 @@ export function ResultPanel({
   offset,
   paperWidth,
 }: ResultPanelProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [placement, setPlacement] = useState<'top' | 'bottom'>('top');
+
+  // 检查位置和遮挡
+  const checkPosition = useCallback(() => {
+    if (!panelRef.current) return;
+
+    // 1. 获取面板尺寸
+    const panelRect = panelRef.current.getBoundingClientRect();
+    const panelHeight = panelRect.height || 200; // 默认估算高度
+
+    // 2. 获取基准点（RobotPrinter 也就是父容器的位置）
+    // 注意：ResultPanel 是 absolute 定位，父容器是 relative/fixed (RobotPrinter)
+    // 我们可以直接获取父级元素的位置
+    const parentElement = panelRef.current.parentElement;
+    if (!parentElement) return;
+    
+    const parentRect = parentElement.getBoundingClientRect();
+    // 纸条中心在父容器垂直中心
+    const centerY = parentRect.top + parentRect.height / 2;
+    
+    // 3. 定义候选位置区域 (ViewPort Coordinates)
+    // Top: 纸条中心上方 75px 起 (margin-bottom)
+    const topCandidate = {
+      top: centerY - 75 - panelHeight,
+      bottom: centerY - 75,
+      left: panelRect.left,
+      right: panelRect.right,
+    };
+
+    // Bottom: 纸条中心下方 75px 起 (margin-top)
+    const bottomCandidate = {
+      top: centerY + 75,
+      bottom: centerY + 75 + panelHeight,
+      left: panelRect.left,
+      right: panelRect.right,
+    };
+
+    // 4. 获取干扰物 (ReferenceBox)
+    const referenceBox = document.querySelector('.reference-box');
+    let obstacleRect: DOMRect | null = null;
+    if (referenceBox) {
+      obstacleRect = referenceBox.getBoundingClientRect();
+    }
+
+    // 5. 碰撞检测函数
+    const hasCollision = (rect: typeof topCandidate) => {
+      // 视口边界检测
+      if (rect.top < 0) return true; // 超出顶部
+      if (rect.bottom > window.innerHeight) return true; // 超出底部
+
+      // 障碍物遮挡检测
+      if (obstacleRect) {
+        const intersectX = Math.max(0, Math.min(rect.right, obstacleRect.right) - Math.max(rect.left, obstacleRect.left));
+        const intersectY = Math.max(0, Math.min(rect.bottom, obstacleRect.bottom) - Math.max(rect.top, obstacleRect.top));
+        if (intersectX > 0 && intersectY > 0) return true; // 有重叠
+      }
+
+      return false;
+    };
+
+    // 6. 决策逻辑
+    const topValid = !hasCollision(topCandidate);
+    const bottomValid = !hasCollision(bottomCandidate);
+
+    if (topValid) {
+      setPlacement('top');
+    } else if (bottomValid) {
+      setPlacement('bottom');
+    } else {
+      // 如果都不满足，优先选择遮挡较少或视口内的（此处简化：优先 Bottom，因为上方通常更挤）
+      // 或者维持 'top' 如果它只是超出了一点点
+      // 策略：如果 Top 超出顶部，强制 Bottom
+      if (topCandidate.top < 0) {
+        setPlacement('bottom');
+      } else {
+        // 默认 Top
+        setPlacement('top');
+      }
+    }
+  }, []);
+
+  // 监听 update 和 轮询检测
+  useEffect(() => {
+    if (!visible) return;
+
+    // 立即检测一次
+    checkPosition();
+
+    // 轮询检测 (应对 ReferenceBox 拖拽)
+    const timer = setInterval(checkPosition, 300);
+
+    // 窗口 Resize 也要检测
+    window.addEventListener('resize', checkPosition);
+    window.addEventListener('scroll', checkPosition);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('resize', checkPosition);
+      window.removeEventListener('scroll', checkPosition);
+    };
+  }, [visible, checkPosition, content]); // content 变化会导致高度变化，需重新计算
+
   if (!visible) {
     return null;
   }
 
-  // 面板与纸条同宽，从偏移位置开始
+  // 面板位置样式
   const positionStyle: React.CSSProperties = {
     [direction === 'left' ? 'right' : 'left']: `${offset}px`,
     width: `${paperWidth}px`,
+    // 动态决定垂直位置
+    ...(placement === 'top' 
+      ? { bottom: 'calc(50% + 75px)' } 
+      : { top: 'calc(50% + 75px)' }
+    ),
   };
 
   // 按换行符拆分内容，用于分段显示
@@ -56,7 +164,8 @@ export function ResultPanel({
 
   return (
     <div 
-      className={`result-panel direction-${direction}`}
+      ref={panelRef}
+      className={`result-panel direction-${direction} ${placement}`}
       style={positionStyle}
       onClick={(e) => e.stopPropagation()}
     >
