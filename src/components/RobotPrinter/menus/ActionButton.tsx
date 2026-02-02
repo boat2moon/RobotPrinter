@@ -20,9 +20,9 @@ function SubActionButton({ action, inputValue }: { action: ActionConfig, inputVa
       action.onClick(inputValue);
     } else {
       // 无功能时显示 toast 提示
-      toast.info('功能待实现', {
-        description: `"${action.label}" 功能正在开发中`,
-        duration: 2000,
+      toast.info('请实现此功能', {
+        description: `给 "${action.label}" 按钮添加 onClick 回调即可`,
+        duration: 3000,
       });
     }
   };
@@ -56,11 +56,11 @@ export function ActionButton({
       if (action.onClick) {
         action.onClick(inputValue);
       } else {
-        // 无功能时显示 toast 提示
-        toast.info('功能待实现', {
-          description: `"${action.label}" 功能正在开发中`,
-          duration: 2000,
-        });
+      // 无功能时显示 toast 提示
+      toast.info('请实现此功能', {
+        description: `给 "${action.label}" 按钮添加 onClick 回调即可`,
+        duration: 3000,
+      });
       }
     }
   };
