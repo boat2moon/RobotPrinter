@@ -105,6 +105,7 @@ function App() {
         delay={delay}
         expanded={expanded}
         onExpandedChange={setExpanded}
+        isDark={isDark}
         actions={[
           { 
             label: '翻译', 

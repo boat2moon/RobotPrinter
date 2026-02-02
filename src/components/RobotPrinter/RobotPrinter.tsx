@@ -10,7 +10,8 @@ import { InfoBar } from './InfoBar';
 export type EyeMode = 
   | { mode: 'normal'; blinkInterval?: [number, number] }
   | { mode: 'loading' }
-  | { mode: 'countdown' };
+  | { mode: 'countdown' }
+  | { mode: 'sleeping' };
 
 /** 位置类型 */
 export interface Position {
@@ -63,6 +64,8 @@ export interface RobotPrinterProps {
   expanded?: boolean;
   /** 展开状态变化时的回调 */
   onExpandedChange?: (expanded: boolean) => void;
+  /** 是否深色模式（深色模式默认睡眠，浅色模式默认清醒） */
+  isDark?: boolean;
 }
 
 // 动画阶段枚举
@@ -140,6 +143,7 @@ export function RobotPrinter({
   infoContent,
   expanded,
   onExpandedChange,
+  isDark = false,
 }: RobotPrinterProps) {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [inputValue, setInputValue] = useState(defaultValue);
@@ -153,6 +157,11 @@ export function RobotPrinter({
   // 拖拽状态
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; y: number; posX: number; posY: number } | null>(null);
+  
+  // 空闲睡眠状态（深色模式默认睡眠）
+  const [isSleeping, setIsSleeping] = useState(isDark);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const IDLE_TIMEOUT = 10000; // 10秒无操作进入睡眠
   
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -334,6 +343,68 @@ export function RobotPrinter({
     }
   }, [inputValue, onSubmit, loading, delay]);
 
+  // 空闲睡眠检测
+  const resetIdleTimer = useCallback(() => {
+    // 唤醒
+    setIsSleeping(false);
+    
+    // 清除旧计时器
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+    }
+    
+    // 设置新计时器
+    idleTimerRef.current = setTimeout(() => {
+      setIsSleeping(true);
+    }, IDLE_TIMEOUT);
+  }, [IDLE_TIMEOUT]);
+
+  // 监听容器上的交互事件
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleActivity = () => resetIdleTimer();
+
+    // 监听各种交互事件
+    container.addEventListener('mousemove', handleActivity);
+    container.addEventListener('mouseenter', handleActivity);
+    container.addEventListener('click', handleActivity);
+    container.addEventListener('keydown', handleActivity);
+    container.addEventListener('focus', handleActivity, true);
+
+    // 初始启动计时器
+    resetIdleTimer();
+
+    return () => {
+      container.removeEventListener('mousemove', handleActivity);
+      container.removeEventListener('mouseenter', handleActivity);
+      container.removeEventListener('click', handleActivity);
+      container.removeEventListener('keydown', handleActivity);
+      container.removeEventListener('focus', handleActivity, true);
+      
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+    };
+  }, [resetIdleTimer]);
+
+  // 主题切换时重置睡眠状态
+  useEffect(() => {
+    if (isDark) {
+      // 深色模式：立即进入睡眠
+      setIsSleeping(true);
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+        idleTimerRef.current = null;
+      }
+    } else {
+      // 浅色模式：唤醒并重启计时器
+      setIsSleeping(false);
+      resetIdleTimer();
+    }
+  }, [isDark, resetIdleTimer]);
+
   // 计算各部分状态
   const isRotated = ['rotating', 'mouth-opening', 'paper-out', 'expanded', 'paper-in', 'mouth-closing'].includes(phase);
   const isMouthOpen = ['mouth-opening', 'paper-out', 'expanded', 'paper-in'].includes(phase);
@@ -428,7 +499,7 @@ export function RobotPrinter({
         isRotated={isRotated}
         isMouthOpen={isMouthOpen}
         onClick={handleClick}
-        eyeMode={loading ? 'loading' : delay > 0 ? 'countdown' : eyeMode.mode}
+        eyeMode={loading ? 'loading' : delay > 0 ? 'countdown' : isSleeping ? 'sleeping' : eyeMode.mode}
         blinkInterval={eyeMode.mode === 'normal' ? eyeMode.blinkInterval : undefined}
         eyeLookDirection={isPaperVisible ? (paperDirection === 'left' ? 'down' : 'down') : null}
         countdownValue={delay}

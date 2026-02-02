@@ -14,6 +14,7 @@
 - 🖱️ **可拖拽** - 支持在页面任意位置拖动
 - 📝 **智能交互** - 输入框支持 Enter 提交，**加载时自动锁定**，防止重复提交
 - 🛑 **直观状态** - 眼睛显示加载脉冲/倒计时，**天线变身绿色中止按钮**
+- 😴 **智能睡眠** - 深色模式或长时间无交互自动闭眼休息
 - 🔗 **外部控制** - 支持通过 `expanded` prop 外部控制展开/收起
 - 🎯 **功能按钮** - 可配置的操作按钮，支持悬停展开子菜单
 - 📋 **结果面板** - 显示处理结果，支持替换/插入等操作
@@ -69,6 +70,7 @@ function App() {
 | `delay`            | `number`                      | `0`     | 频率限制倒计时 (秒)，>0 时显示           |
 | `expanded`         | `boolean`                     | -       | 外部控制展开状态（可选，不传则内部控制） |
 | `onExpandedChange` | `(expanded: boolean) => void` | -       | 展开状态变化回调                         |
+| `isDark`           | `boolean`                     | `false` | 是否深色模式 (影响眼睛空闲睡眠状态)      |
 
 ### 用户回调
 
@@ -153,6 +155,7 @@ Demo: [www.boat2moon.com/robot-printer](https://www.boat2moon.com/robot-printer)
 - 🖱️ **Draggable** - Drag anywhere on the page
 - 📝 **Smart Interaction** - Enter to submit, **auto-locks during loading**
 - 🛑 **Intuitive States** - Eyes show loading pulse/countdown, **antenna turns green as abort button**
+- 😴 **Smart Sleep** - Automatically sleeps in dark mode or when idle
 - 🔗 **External Control** - Control expand/collapse via `expanded` prop
 - 🎯 **Action Buttons** - Configurable buttons with hover submenus
 - 📋 **Result Panel** - Display AI results with replace/insert actions
@@ -210,6 +213,7 @@ function App() {
 | `delay`            | `number`                      | `0`     | Rate limit countdown (seconds)               |
 | `expanded`         | `boolean`                     | -       | External control for expand state (optional) |
 | `onExpandedChange` | `(expanded: boolean) => void` | -       | Callback when expand state changes           |
+| `isDark`           | `boolean`                     | `false` | Dark mode flag (affects idle sleep state)    |
 
 ### User Callbacks
 

@@ -9,8 +9,8 @@ interface RobotHeadProps {
   isMouthOpen: boolean;
   /** 点击回调 */
   onClick: () => void;
-  /** 眼睛模式：normal=普通(会眨眼), loading=加载中(脉冲), countdown=倒计时 */
-  eyeMode?: 'normal' | 'loading' | 'countdown';
+  /** 眼睛模式：normal=普通(会眨眼), loading=加载中(脉冲), countdown=倒计时, sleeping=睡眠 */
+  eyeMode?: 'normal' | 'loading' | 'countdown' | 'sleeping';
   /** 眨眼间隔 [最小ms, 最大ms] */
   blinkInterval?: [number, number];
   /** 眼睛注视方向 */

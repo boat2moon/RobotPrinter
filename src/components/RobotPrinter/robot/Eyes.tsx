@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 
 interface EyesProps {
-  /** 眼睛模式：normal=普通模式(会眨眼), loading=加载中(脉冲动画,无瞳孔), countdown=倒计时显示 */
-  mode?: 'normal' | 'loading' | 'countdown';
+  /** 眼睛模式：normal=普通模式(会眨眼), loading=加载中(脉冲动画,无瞳孔), countdown=倒计时显示, sleeping=闭眼睡觉 */
+  mode?: 'normal' | 'loading' | 'countdown' | 'sleeping';
   /** 眨眼间隔范围 [最小ms, 最大ms]，仅 normal 模式有效 */
   blinkInterval?: [number, number];
   /** 是否启用鼠标跟随（仅 normal 模式生效） */
@@ -125,9 +125,10 @@ export function Eyes({
   
   const isLoading = mode === 'loading';
   const isCountdown = mode === 'countdown';
-  const eyeClassName = `eye ${isBlinking ? 'blink' : ''} ${isLoading ? 'loading' : ''}`;
+  const isSleeping = mode === 'sleeping';
+  const eyeClassName = `eye ${isBlinking ? 'blink' : ''} ${isLoading ? 'loading' : ''} ${isSleeping ? 'sleeping' : ''}`;
   
-  const pupilStyle = !isLoading ? {
+  const pupilStyle = !isLoading && !isSleeping ? {
     transform: `translate(${pupilOffset.x}px, ${pupilOffset.y}px)`,
   } : {};
   
