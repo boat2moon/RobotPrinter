@@ -1,0 +1,8 @@
+# 部署时忽略的文件
+.git
+.gitignore
+.env
+README.md
+s.yaml
+ref-ai-island
+ref.html
