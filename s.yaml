@@ -10,9 +10,16 @@ resources:
     component: fc3
     actions:
       pre-deploy:
-        - run: npm install
-          path: ./
-        - run: npm run build
+        - run: |
+            echo "Installing Node.js 20..."
+            curl -fsSL https://nodejs.org/dist/v20.11.1/node-v20.11.1-linux-x64.tar.xz -o node-v20.tar.xz
+            tar -xf node-v20.tar.xz
+            export PATH=$PWD/node-v20.11.1-linux-x64/bin:$PATH
+            echo "Node version: $(node -v)"
+            echo "NPM version: $(npm -v)"
+            npm install
+            npm run build
+            rm -rf node-v20.tar.xz node-v20.11.1-linux-x64
           path: ./
     props:
       region: ${vars.region}
