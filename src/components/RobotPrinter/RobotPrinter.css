@@ -243,9 +243,10 @@
 }
 
 .submenu-indicator {
-  margin-left: 4px;
-  font-size: 10px;
-  opacity: 0.6;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.8;
 }
 
 .action-btn:hover:not(:disabled) {
@@ -349,16 +350,15 @@
     linear-gradient(to top, rgba(0, 0, 0, 0.06) 0%, transparent 10%);
 
   border-radius: 4px;
-  
+
   /* 
    * 1. 使用 filter: drop-shadow 替代 box-shadow
    *    这样阴影会完美贴合 clip-path 裁剪后的斜切形状
    * 2. 保留 inset box-shadow 用于内部体积感
    */
-  filter: 
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12))
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12))
     drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-    
+
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, 1),
     inset 0 -2px 0 rgba(0, 0, 0, 0.06);
@@ -378,10 +378,10 @@
 
 /* 斜切边 "边框" 线 - 左侧 */
 .paper.direction-left::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 14.5px; /* 起点 X (top) */
-  top: -2px;    /* 稍微延伸以确保连接 */
+  top: -2px; /* 稍微延伸以确保连接 */
   width: 1.5px; /* 边框宽度 */
   height: 66px; /* 足够长以覆盖斜边 */
   background: rgba(0, 0, 0, 0.25);
@@ -393,7 +393,7 @@
 
 /* 斜切边 "边框" 线 - 右侧 */
 .paper.direction-right::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 14.5px; /* 起点 X (top) */
   top: -2px;
@@ -408,22 +408,26 @@
 
 /* 内部高光/阴影渐变 - 左侧 */
 .paper.direction-left::before {
-  content: '';
+  content: "";
   position: absolute;
-  left: 0; top: 0; bottom: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
   width: 30px;
-  background: linear-gradient(104deg, rgba(0,0,0,0.06) 0%, transparent 60%);
+  background: linear-gradient(104deg, rgba(0, 0, 0, 0.06) 0%, transparent 60%);
   pointer-events: none;
   z-index: 1;
 }
 
 /* 内部高光/阴影渐变 - 右侧 */
 .paper.direction-right::before {
-  content: '';
+  content: "";
   position: absolute;
-  right: 0; top: 0; bottom: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
   width: 30px;
-  background: linear-gradient(-104deg, rgba(0,0,0,0.06) 0%, transparent 60%);
+  background: linear-gradient(-104deg, rgba(0, 0, 0, 0.06) 0%, transparent 60%);
   pointer-events: none;
   z-index: 1;
 }
@@ -706,17 +710,19 @@
   height: 85px;
   /* 动态光照: 渐变角度跟随光源 */
   background: linear-gradient(
-    var(--grad-angle, 145deg), 
-    #ebe4d4 0%, 
-    #e0d8c0 50%, 
+    var(--grad-angle, 145deg),
+    #ebe4d4 0%,
+    #e0d8c0 50%,
     #d5cdb8 100%
   );
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.18);
   /* 动态光照: 内阴影偏移跟随光源 */
   box-shadow:
-    inset var(--shadow-inset-x, -2px) var(--shadow-inset-y, -2px) 6px rgba(0, 0, 0, 0.08),
-    inset var(--highlight-x, 2px) var(--highlight-y, 2px) 6px rgba(255, 255, 255, 0.6);
+    inset var(--shadow-inset-x, -2px) var(--shadow-inset-y, -2px) 6px
+      rgba(0, 0, 0, 0.08),
+    inset var(--highlight-x, 2px) var(--highlight-y, 2px) 6px
+      rgba(255, 255, 255, 0.6);
 }
 
 /* 天线 */
@@ -746,7 +752,7 @@
     inset -2px -2px 4px rgba(0, 0, 0, 0.2),
     inset 2px 2px 4px rgba(255, 255, 255, 0.3);
   /* 增加 background 过渡以支持颜色平滑切换 */
-  transition: 
+  transition:
     box-shadow 0.3s ease,
     background 0.3s ease,
     width 0.3s ease,
@@ -767,7 +773,7 @@
   justify-content: center;
   animation: antennaBreathe 1.2s ease-in-out infinite;
   /* 保持与非 loading 态一致的过渡设置 */
-  transition: 
+  transition:
     box-shadow 0.3s ease,
     background 0.3s ease,
     width 0.3s ease,
@@ -803,8 +809,13 @@
 }
 
 @keyframes hintPulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes antennaBreathe {
@@ -955,7 +966,8 @@
 }
 
 @keyframes sleepingGlow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
     box-shadow:
       0 0 4px rgba(0, 255, 204, 0.3),
@@ -987,7 +999,7 @@
   left: 50%;
   font-size: 24px;
   font-weight: 700;
-  font-family: 'SF Mono', 'Consolas', monospace;
+  font-family: "SF Mono", "Consolas", monospace;
   color: #ffcc00;
   text-shadow: 0 0 8px rgba(255, 204, 0, 0.8);
   animation: countdownPulse 1s ease-in-out infinite;
@@ -996,7 +1008,8 @@
 }
 
 @keyframes countdownPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -1063,11 +1076,11 @@
   pointer-events: none;
   z-index: 100;
   animation: tipFadeIn 0.2s ease-out;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .action-tip::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 100%;
   left: 50%;
@@ -1078,8 +1091,14 @@
 }
 
 @keyframes tipFadeIn {
-  from { opacity: 0; transform: translate(-50%, -24px); }
-  to { opacity: 1; transform: translate(-50%, -50%); }
+  from {
+    opacity: 0;
+    transform: translate(-50%, -24px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 /* 确保子菜单按钮可以正确定位提示 */
