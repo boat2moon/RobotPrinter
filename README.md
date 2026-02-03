@@ -22,12 +22,56 @@
 - 📋 **结果面板** - 显示处理结果，支持替换/插入等操作
 - 💬 **底部提示** - 可自定义的提示信息区域
 - 🔧 **高度可配置** - 所有功能通过 props 注入，无业务逻辑耦合
+- 💎 **Glass Mode** - 提供毛玻璃 (Glassmorphism) 风格选项，现代感十足
+- 📐 **自适应布局** - 结果面板自动避让遮挡，位置参数完全可配
 
-## 📦 安装
+### 🔧 进阶配置
+
+在 `src/components/RobotPrinter/ResultPanel.tsx` 文件顶部，你可以根据需要调整布局常量：
+
+```typescript
+// --- Glass 模式参数 ---
+const GLASS_GAP_TOP = 35;
+const GLASS_GAP_BOTTOM = 45;
+const GLASS_OFFSET_LEFT = 30;
+const GLASS_OFFSET_RIGHT = 30;
+
+// --- Default 模式参数 ---
+const DEFAULT_GAP_TOP = 65;
+const DEFAULT_GAP_BOTTOM = 65;
+// ...
+```
+
+## �️ 技术栈
+
+- **React** 19+ (Hooks)
+- **TypeScript** 5.9+
+- **Vite** 7.x (开发/构建)
+- **CSS Variables** (主题化)
+- **sonner** (Toast 通知，Demo 使用)
+
+## �📦 安装
 
 ```bash
 # 将组件文件夹复制到你的项目中
 cp -r src/components/RobotPrinter your-project/src/components/
+```
+
+### 开发 Demo
+
+```bash
+# 克隆仓库
+git clone https://github.com/boat2moon/RobotPrinter.git
+cd RobotPrinter
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
 ```
 
 ## 🚀 快速开始
@@ -49,20 +93,24 @@ function App() {
 
 ### 基础配置
 
-| 属性           | 类型      | 默认值          | 说明                 |
-| -------------- | --------- | --------------- | -------------------- |
-| `placeholder`  | `string`  | `'输入记录...'` | 输入框占位符文本     |
-| `defaultValue` | `string`  | `''`            | 输入框初始值         |
-| `paperWidth`   | `number`  | `500`           | 纸条宽度 (px)        |
-| `showHint`     | `boolean` | `true`          | 是否显示底部操作提示 |
+| 属性             | 类型      | 默认值          | 说明                   |
+| ---------------- | --------- | --------------- | ---------------------- |
+| `placeholder`    | `string`  | `'输入记录...'` | 输入框占位符文本       |
+| `defaultValue`   | `string`  | `''`            | 输入框初始值           |
+| `paperWidth`     | `number`  | `500`           | 纸条宽度 (px)          |
+| `showHint`       | `boolean` | `true`          | 是否显示底部操作提示   |
+| `rotateDuration` | `number`  | `400`           | 机器人旋转动画时间(ms) |
+| `paperDuration`  | `number`  | `600`           | 纸条展开动画时间(ms)   |
 
 ### 外观配置
 
-| 属性               | 类型                 | 默认值                              | 说明                               |
-| ------------------ | -------------------- | ----------------------------------- | ---------------------------------- |
-| `antennaBallColor` | `string \| string[]` | `['#ff6b6b', '#e74c3c', '#c0392b']` | 天线小球颜色（加载时自动变为绿色） |
-| `tiltStrength`     | `number`             | `1`                                 | 倾斜强度 (0-2)                     |
-| `shadowStrength`   | `number`             | `1`                                 | 阴影强度 (0-2)                     |
+| 属性               | 类型                   | 默认值                              | 说明                               |
+| ------------------ | ---------------------- | ----------------------------------- | ---------------------------------- |
+| `antennaBallColor` | `string \| string[]`   | `['#ff6b6b', '#e74c3c', '#c0392b']` | 天线小球颜色（加载时自动变为绿色） |
+| `tiltStrength`     | `number`               | `1`                                 | 倾斜强度 (0-2)                     |
+| `shadowStrength`   | `number`               | `1`                                 | 阴影强度 (0-2)                     |
+| `styleMode`        | `'default' \| 'glass'` | `'default'`                         | 视觉风格 (新!)                     |
+| `eyeMode`          | `EyeMode`              | `{ mode: 'normal' }`                | 眼睛模式配置，见下方类型定义       |
 
 ### 状态控制
 
@@ -73,6 +121,46 @@ function App() {
 | `expanded`         | `boolean`                     | -       | 外部控制展开状态（可选，不传则内部控制） |
 | `onExpandedChange` | `(expanded: boolean) => void` | -       | 展开状态变化回调                         |
 | `isDark`           | `boolean`                     | `false` | 是否深色模式 (影响眼睛空闲睡眠状态)      |
+| `highlightTrigger` | `number`                      | `0`     | 值变化时触发抖动高亮动画                 |
+| `position`         | `{ x: number; y: number }`    | -       | 外部控制位置（可选，受控模式）           |
+| `onPositionChange` | `(pos: Position) => void`     | -       | 位置变化回调                             |
+
+### 高级配置
+
+| 属性          | 类型                | 说明                                |
+| ------------- | ------------------- | ----------------------------------- |
+| `actions`     | `ActionConfig[]`    | 纸条上方的操作菜单配置              |
+| `resultPanel` | `ResultPanelConfig` | 结果显示面板的配置与状态            |
+| `infoContent` | `ReactNode`         | 底部信息栏的自定义内容 (例如 token) |
+
+#### 类型定义
+
+```typescript
+// 眼睛模式配置
+type EyeMode =
+  | { mode: "normal"; blinkInterval?: [number, number] }
+  | { mode: "loading" }
+  | { mode: "countdown" }
+  | { mode: "sleeping" };
+
+// 菜单动作配置
+interface ActionConfig {
+  label: string;
+  onClick?: (value: string) => void;
+  disabled?: boolean;
+  subActions?: ActionConfig[]; // 递归子菜单
+}
+
+// 结果面板配置
+interface ResultPanelConfig {
+  visible: boolean;
+  content: string;
+  loading: boolean;
+  onClose: () => void;
+  actions?: ActionConfig[];
+  onPlacementChange?: (placement: "top" | "bottom") => void;
+}
+```
 
 ### 用户回调
 
@@ -112,19 +200,22 @@ const [expanded, setExpanded] = useState(false);
 
 ```
 RobotPrinter/
-├── index.ts              # 主入口
+├── index.ts              # 主入口，导出所有公共 API
 ├── RobotPrinter.tsx      # 主组件
-├── RobotPrinter.css      # 样式
-├── Paper.tsx             # 纸条输入框
-├── ResultPanel.tsx       # 结果面板
-├── InfoBar.tsx           # 底部提示栏
+├── RobotPrinter.css      # 样式（CSS Variables 主题化）
+├── Paper.tsx             # 纸条输入框组件
+├── ResultPanel.tsx       # 结果面板组件
+├── InfoBar.tsx           # 底部提示栏组件
 ├── menus/                # 菜单模块
-│   ├── ActionMenu.tsx
-│   └── ActionButton.tsx
-└── robot/                # 机器人头部
-    ├── RobotHead.tsx
-    ├── Eyes.tsx
-    └── Antenna.tsx       # 天线（加载时变绿色）
+│   ├── index.ts          # 菜单模块入口
+│   ├── types.ts          # 菜单类型定义
+│   ├── ActionMenu.tsx    # 菜单容器组件
+│   └── ActionButton.tsx  # 菜单按钮组件
+└── robot/                # 机器人头部模块
+    ├── index.ts          # 头部模块入口
+    ├── RobotHead.tsx     # 头部主组件
+    ├── Eyes.tsx          # 眼睛组件（支持多种模式）
+    └── Antenna.tsx       # 天线组件（加载时变绿色可中止）
 ```
 
 ---
@@ -163,12 +254,56 @@ Demo: [www.boat2moon.com/robot-printer](https://www.boat2moon.com/robot-printer)
 - 📋 **Result Panel** - Display AI results with replace/insert actions
 - 💬 **Info Bar** - Customizable hint area at bottom
 - 🔧 **Highly Configurable** - All features via props, no business logic coupling
+- 💎 **Glass Mode** - Provides Glassmorphism style option, modern look
+- 📐 **Adaptive Layout** - Result panel automatically avoids obstructions, position is fully configurable
+
+### 🔧 Advanced Configuration
+
+You can adjust layout constants at the top of `src/components/RobotPrinter/ResultPanel.tsx` as needed:
+
+```typescript
+// --- Glass Mode Parameters ---
+const GLASS_GAP_TOP = 35;
+const GLASS_GAP_BOTTOM = 45;
+const GLASS_OFFSET_LEFT = 30;
+const GLASS_OFFSET_RIGHT = 30;
+
+// --- Default Mode Parameters ---
+const DEFAULT_GAP_TOP = 65;
+const DEFAULT_GAP_BOTTOM = 65;
+// ...
+```
+
+## 🛠️ Tech Stack
+
+- **React** 19+ (Hooks)
+- **TypeScript** 5.9+
+- **Vite** 7.x (Development/Build)
+- **CSS Variables** (Theming)
+- **sonner** (Toast notifications, used in Demo)
 
 ## 📦 Installation
 
 ```bash
 # Copy component folder to your project
 cp -r src/components/RobotPrinter your-project/src/components/
+```
+
+### Development Demo
+
+```bash
+# Clone repository
+git clone https://github.com/boat2moon/RobotPrinter.git
+cd RobotPrinter
+
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Build for production
+npm run build
 ```
 
 ## 🚀 Quick Start
@@ -192,20 +327,24 @@ function App() {
 
 ### Basic Props
 
-| Prop           | Type      | Default         | Description            |
-| -------------- | --------- | --------------- | ---------------------- |
-| `placeholder`  | `string`  | `'输入记录...'` | Input placeholder text |
-| `defaultValue` | `string`  | `''`            | Initial input value    |
-| `paperWidth`   | `number`  | `500`           | Paper width (px)       |
-| `showHint`     | `boolean` | `true`          | Show bottom hint       |
+| Prop             | Type      | Default         | Description                   |
+| ---------------- | --------- | --------------- | ----------------------------- |
+| `placeholder`    | `string`  | `'输入记录...'` | Input placeholder text        |
+| `defaultValue`   | `string`  | `''`            | Initial input value           |
+| `paperWidth`     | `number`  | `500`           | Paper width (px)              |
+| `showHint`       | `boolean` | `true`          | Show bottom hint              |
+| `rotateDuration` | `number`  | `400`           | Robot rotation animation (ms) |
+| `paperDuration`  | `number`  | `600`           | Paper expand animation (ms)   |
 
 ### Appearance
 
-| Prop               | Type                 | Default                             | Description                                   |
-| ------------------ | -------------------- | ----------------------------------- | --------------------------------------------- |
-| `antennaBallColor` | `string \| string[]` | `['#ff6b6b', '#e74c3c', '#c0392b']` | Antenna ball color (turns green when loading) |
-| `tiltStrength`     | `number`             | `1`                                 | Tilt intensity (0-2)                          |
-| `shadowStrength`   | `number`             | `1`                                 | Shadow intensity (0-2)                        |
+| Prop               | Type                   | Default                             | Description                                   |
+| ------------------ | ---------------------- | ----------------------------------- | --------------------------------------------- |
+| `antennaBallColor` | `string \| string[]`   | `['#ff6b6b', '#e74c3c', '#c0392b']` | Antenna ball color (turns green when loading) |
+| `tiltStrength`     | `number`               | `1`                                 | Tilt intensity (0-2)                          |
+| `shadowStrength`   | `number`               | `1`                                 | Shadow intensity (0-2)                        |
+| `styleMode`        | `'default' \| 'glass'` | `'default'`                         | Visual style (New!)                           |
+| `eyeMode`          | `EyeMode`              | `{ mode: 'normal' }`                | Eye mode config, see type defs below          |
 
 ### State Control
 
@@ -216,6 +355,46 @@ function App() {
 | `expanded`         | `boolean`                     | -       | External control for expand state (optional) |
 | `onExpandedChange` | `(expanded: boolean) => void` | -       | Callback when expand state changes           |
 | `isDark`           | `boolean`                     | `false` | Dark mode flag (affects idle sleep state)    |
+| `highlightTrigger` | `number`                      | `0`     | Changing this value triggers shake animation |
+| `position`         | `{ x: number; y: number }`    | -       | External control for position (controlled)   |
+| `onPositionChange` | `(pos: Position) => void`     | -       | Callback when position changes               |
+
+### Advanced Configuration
+
+| Prop          | Type                | Description                                |
+| ------------- | ------------------- | ------------------------------------------ |
+| `actions`     | `ActionConfig[]`    | Configuration for the action menu          |
+| `resultPanel` | `ResultPanelConfig` | Configuration for the result display panel |
+| `infoContent` | `ReactNode`         | Custom content for bottom info bar         |
+
+#### Type Definitions
+
+```typescript
+// Eye Mode Configuration
+type EyeMode =
+  | { mode: "normal"; blinkInterval?: [number, number] }
+  | { mode: "loading" }
+  | { mode: "countdown" }
+  | { mode: "sleeping" };
+
+// Action Menu Configuration
+interface ActionConfig {
+  label: string;
+  onClick?: (value: string) => void;
+  disabled?: boolean;
+  subActions?: ActionConfig[]; // Recursive submenu
+}
+
+// Result Panel Configuration
+interface ResultPanelConfig {
+  visible: boolean;
+  content: string;
+  loading: boolean;
+  onClose: () => void;
+  actions?: ActionConfig[];
+  onPlacementChange?: (placement: "top" | "bottom") => void;
+}
+```
 
 ### User Callbacks
 
@@ -255,19 +434,22 @@ const [expanded, setExpanded] = useState(false);
 
 ```
 RobotPrinter/
-├── index.ts              # Entry point
+├── index.ts              # Entry point, exports all public APIs
 ├── RobotPrinter.tsx      # Main component
-├── RobotPrinter.css      # Styles
-├── Paper.tsx             # Paper input
-├── ResultPanel.tsx       # Result panel
-├── InfoBar.tsx           # Info bar
+├── RobotPrinter.css      # Styles (CSS Variables theming)
+├── Paper.tsx             # Paper input component
+├── ResultPanel.tsx       # Result panel component
+├── InfoBar.tsx           # Info bar component
 ├── menus/                # Menu module
-│   ├── ActionMenu.tsx
-│   └── ActionButton.tsx
-└── robot/                # Robot head
-    ├── RobotHead.tsx
-    ├── Eyes.tsx
-    └── Antenna.tsx       # Antenna (turns green when loading)
+│   ├── index.ts          # Menu module entry
+│   ├── types.ts          # Menu type definitions
+│   ├── ActionMenu.tsx    # Menu container component
+│   └── ActionButton.tsx  # Menu button component
+└── robot/                # Robot head module
+    ├── index.ts          # Head module entry
+    ├── RobotHead.tsx     # Head main component
+    ├── Eyes.tsx          # Eyes component (supports multiple modes)
+    └── Antenna.tsx       # Antenna (turns green when loading, clickable to abort)
 ```
 
 ---
