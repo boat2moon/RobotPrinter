@@ -600,6 +600,11 @@ export function RobotPrinter({
     } : {}),
   } as React.CSSProperties;
 
+  // 计算有效的位置 placement：只有当 ResultPanel 显示且纸条展开时，才使用 resultPlacement
+  // 否则强制为 'top' (即默认状态，Hint 在下方)
+  const isResultPanelVisible = resultPanel?.visible && isPaperVisible;
+  const effectivePlacement = isResultPanelVisible ? resultPlacement : 'top';
+
   return (
     <div 
       className={`robot-printer ${draggable ? 'draggable' : ''} ${styleMode === 'glass' ? 'glass-mode' : ''} ${isShaking ? 'shake-animation' : ''}`}
@@ -610,7 +615,7 @@ export function RobotPrinter({
       {/* Glass Mode Background */}
       {styleMode === 'glass' && (
         <div
-          className={`ai-island-backdrop ${isPaperVisible ? 'expanded' : ''} ${resultPanel?.visible ? 'has-result' : ''} ${isDark ? 'dark' : ''} direction-${paperDirection} result-${resultPlacement}`}
+          className={`ai-island-backdrop ${isPaperVisible ? 'expanded' : ''} ${isResultPanelVisible ? 'has-result' : ''} ${isDark ? 'dark' : ''} direction-${paperDirection} result-${effectivePlacement}`}
           style={{
             '--paper-width': `${paperWidth}px`,
             '--paper-offset': `${paperOffset}px`,
@@ -643,7 +648,7 @@ export function RobotPrinter({
       />
 
       {/* 结果面板 - 纸条收起时同时隐藏 */}
-      {resultPanel && isPaperVisible && (
+      {isResultPanelVisible && resultPanel && (
         <ResultPanel
           ref={resultPanelRef}
           {...resultPanel}
@@ -655,6 +660,7 @@ export function RobotPrinter({
           styleMode={styleMode}
           isDark={isDark}
           onPlacementChange={setResultPlacement}
+          defaultPlacement={resultPlacement}
         />
       )}
 
@@ -664,7 +670,7 @@ export function RobotPrinter({
         offset={paperOffset}
         paperWidth={paperWidth}
         isVisible={isPaperVisible}
-        resultPlacement={resultPlacement}
+        resultPlacement={effectivePlacement}
       >
         {infoContent}
       </InfoBar>
@@ -688,7 +694,7 @@ export function RobotPrinter({
 
       {/* 提示文字 */}
       {showHint && (
-        <div className={`hint placement-${resultPlacement}`}>
+        <div className={`hint placement-${effectivePlacement}`}>
           {draggable ? '拖拽移动 / 点击展开' : '点击机器人收纳/展开'}
         </div>
       )}

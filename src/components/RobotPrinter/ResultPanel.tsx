@@ -15,6 +15,8 @@ export interface ResultPanelConfig {
   actions?: ActionConfig[];
   /** 位置变更回调 */
   onPlacementChange?: (placement: 'top' | 'bottom') => void;
+  /** 默认初始位置 */
+  defaultPlacement?: 'top' | 'bottom';
 }
 
 interface ResultPanelProps extends ResultPanelConfig {
@@ -43,7 +45,7 @@ interface ResultPanelProps extends ResultPanelConfig {
 // --- Glass 模式参数 ---
 // 垂直间距 (距离中心线)
 const GLASS_GAP_TOP = 35; 
-const GLASS_GAP_BOTTOM = 45; 
+const GLASS_GAP_BOTTOM = 40; 
 // 水平偏移
 const GLASS_OFFSET_LEFT = 30;  // 机器人在右 (direction=left)
 const GLASS_OFFSET_RIGHT = 30; // 机器人在左 (direction=right)
@@ -71,10 +73,11 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
   styleMode = 'default',
   isDark = false,
   onPlacementChange,
+  defaultPlacement = 'top',
 }, ref) {
   const internalRef = useRef<HTMLDivElement>(null);
   const panelRef = (ref as React.RefObject<HTMLDivElement | null>) || internalRef;
-  const [placement, setPlacement] = useState<'top' | 'bottom'>('top');
+  const [placement, setPlacement] = useState<'top' | 'bottom'>(defaultPlacement);
 
   // 检查位置和遮挡
   const checkPosition = useCallback(() => {

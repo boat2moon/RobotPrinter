@@ -208,7 +208,7 @@
 
 .info-bar {
   position: absolute;
-  top: calc(50% + 30px); /* 纸条下方 */
+  top: calc(50% + 40px); /* 纸条下方 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1347,7 +1347,7 @@
 /* InfoBar: 默认在纸条下方，当 ResultPanel 在底部时翻转到上方 */
 .info-bar.placement-bottom {
   top: auto;
-  bottom: calc(50% + 30px);
+  bottom: calc(50% + 40px);
 }
 
 /* Hint: 默认在机器人下方，当 ResultPanel 在底部时翻转到上方 */
