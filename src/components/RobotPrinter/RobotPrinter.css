@@ -212,7 +212,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 11px;
+  font-size: 12px;
   color: #a0aec0;
   opacity: 0;
   animation: infoBarFadeIn 0.3s ease-out forwards;
@@ -1203,7 +1203,7 @@
   bottom: -5px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 11px;
+  font-size: 12px;
   color: #a0aec0;
   white-space: nowrap;
   opacity: 0.7;
