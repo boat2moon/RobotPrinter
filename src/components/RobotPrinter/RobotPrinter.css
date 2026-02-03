@@ -20,6 +20,162 @@
   user-select: none;
 }
 
+/* ========================================
+   Glass Mode 毛玻璃背景层
+   ======================================== */
+
+.ai-island-backdrop {
+  position: absolute;
+  /* 从底部锚定：底边延伸到 InfoBar 下方 */
+  bottom: calc(50% - 87.5px);
+  /* 向右偏移：考虑Paper斜切(~30px)，用-20px使视觉居中 */
+  right: -45px;
+  /* 基础高度：覆盖 ActionMenu(35px上方) + Paper(30px) + InfoBar(40px下方) + 边距 */
+  height: 175px;
+
+  /* Premium Frosted Glass - Light Mode */
+  background: linear-gradient(
+    145deg,
+    rgba(230, 240, 255, 0.55) 0%,
+    rgba(240, 245, 255, 0.45) 40%,
+    rgba(235, 242, 255, 0.5) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%) brightness(1.02);
+  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.02);
+  /* 有色边框增强边缘可见性 */
+  border: 1.5px solid rgba(180, 200, 230, 0.5);
+  /* 四个角都是圆角 */
+  border-radius: 24px;
+  box-shadow:
+    /* 外部投影 */
+    0 4px 24px rgba(100, 130, 180, 0.12),
+    0 12px 48px rgba(80, 110, 160, 0.08),
+    /* 顶部亮边 - 玻璃反光 */
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    /* 左上角高光 */
+    inset 2px 2px 8px rgba(255, 255, 255, 0.4),
+    /* 整体内发光 */
+    inset 0 0 40px rgba(200, 220, 255, 0.15);
+  z-index: 0;
+  /* 默认（direction-left）：纸条向左吐，Glass 靠右定位 */
+  right: -45px;
+  left: auto;
+  
+  height: 175px;
+  width: 0;
+  opacity: 0;
+
+  transition:
+    width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s,
+    height 0.05s,
+    opacity 0.3s ease,
+    background 0.3s ease,
+    border-color 0.3s ease;
+
+  pointer-events: none;
+}
+
+/* Dark Mode Glass - 月光暖色调 */
+.ai-island-backdrop.dark {
+  background: linear-gradient(
+    135deg,
+    rgba(40, 35, 28, 0.65) 0%,
+    rgba(35, 32, 26, 0.55) 50%,
+    rgba(45, 40, 32, 0.6) 100%
+  );
+  backdrop-filter: blur(24px) saturate(130%) brightness(0.98);
+  -webkit-backdrop-filter: blur(24px) saturate(130%) brightness(0.98);
+  border-color: rgba(255, 240, 200, 0.12);
+  box-shadow:
+    0 0 60px rgba(255, 220, 150, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 245, 220, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    inset 0 0 30px rgba(255, 230, 180, 0.03);
+}
+
+/* 展开态 */
+.ai-island-backdrop.expanded {
+  /* 宽度 = 纸条宽度 + 纸条偏移 + 40px(右侧机器人) + 20px(左侧Paper斜切补偿) */
+  width: calc(var(--paper-width) + var(--paper-offset) + 65px);
+  opacity: 1;
+  pointer-events: auto;
+  
+  /* 展开时立即执行宽高动画，不延迟 */
+  transition:
+    width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    height 0s,
+    opacity 0.4s ease,
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* 有结果面板时，高度动态增加（无额外冗余间距） */
+.ai-island-backdrop.has-result {
+  /* 高度 = 基础偏移(143px，与rumuai-web一致) + ResultPanel 实际高度 */
+  height: calc(125px + var(--result-height, 0px));
+  max-height: 600px;
+  /* 有内容时提高不透明度增强可读性 */
+  background: linear-gradient(
+    145deg,
+    rgba(235, 243, 255, 0.75) 0%,
+    rgba(242, 247, 255, 0.65) 40%,
+    rgba(238, 245, 255, 0.7) 100%
+  );
+  /* 保持四角圆角 */
+  border-radius: 20px;
+}
+
+.ai-island-backdrop.has-result.dark {
+  background: linear-gradient(
+    135deg,
+    rgba(38, 34, 28, 0.82) 0%,
+    rgba(34, 30, 25, 0.75) 50%,
+    rgba(42, 38, 30, 0.78) 100%
+  );
+}
+
+/* ========================================
+   Glass Mode Result Panel - 透明融入背景
+   ======================================== */
+
+.robot-printer.glass-mode .result-panel {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  /* 限制最大高度 */
+  max-height: 320px;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-line {
+  color: #e0e0e0;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-btn {
+  color: #ccc;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-close {
+  color: #aaa;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-actions {
+  border-top-color: rgba(255, 255, 255, 0.15);
+}
+
 /* ======================================== 
    拓展功能按钮
    ======================================== */
@@ -1105,3 +1261,103 @@
 .submenu-btn {
   position: relative;
 }
+
+/* ========================================
+   反馈动画：抖动与发光
+   ======================================== */
+
+@keyframes shake {
+  0%, 100% { margin-left: 0; }
+  25% { margin-left: -5px; }
+  50% { margin-left: 5px; }
+  75% { margin-left: -5px; }
+}
+
+@keyframes glow-glass {
+  0%, 100% {
+    box-shadow: 
+      0 4px 24px rgba(100, 130, 180, 0.12),
+      0 12px 48px rgba(80, 110, 160, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      inset 2px 2px 8px rgba(255, 255, 255, 0.4),
+      inset 0 0 40px rgba(200, 220, 255, 0.15);
+  }
+  50% {
+    box-shadow: 
+      0 0 20px rgba(100, 180, 255, 0.6),
+      0 0 40px rgba(100, 150, 255, 0.3),
+      inset 0 0 20px rgba(255, 255, 255, 0.8);
+  }
+}
+
+@keyframes glow-glass-dark {
+  0%, 100% {
+    box-shadow: 
+      0 0 60px rgba(255, 220, 150, 0.05),
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 245, 220, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+      inset 0 0 30px rgba(255, 230, 180, 0.03);
+  }
+  50% {
+    box-shadow: 
+      0 0 25px rgba(255, 200, 120, 0.5),
+      0 0 50px rgba(255, 180, 100, 0.2),
+      inset 0 0 30px rgba(255, 230, 150, 0.2);
+  }
+}
+
+.robot-printer.shake-animation {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* Glass Mode 下的抖动不仅仅是位移，还要带着 Glass 的轮廓发光 */
+.robot-printer.glass-mode.shake-animation .ai-island-backdrop {
+  animation: glow-glass 0.4s ease-in-out;
+}
+
+.robot-printer.glass-mode.shake-animation .ai-island-backdrop.dark {
+  animation: glow-glass-dark 0.4s ease-in-out;
+}
+
+/* 方向适配：当纸条向右吐（机器人在左侧）时，Glass 靠左定位 */
+.ai-island-backdrop.direction-right {
+  right: auto;
+  left: -45px;
+}
+
+/* 结果面板在下方时，Glass 向下生长 */
+.ai-island-backdrop.result-bottom {
+  bottom: auto;
+  top: calc(50% - 87.5px);
+}
+
+/* 确保 direction-right 和 result-bottom 组合时也能正常工作 */
+.ai-island-backdrop.direction-right.result-bottom {
+  right: auto;
+  left: -45px;
+  bottom: auto;
+  top: calc(50% - 87.5px);
+}
+
+/* ========================================
+   ResultPanel 在下方时，InfoBar 和 Hint 翻转到上方
+   ======================================== */
+
+/* InfoBar: 默认在纸条下方，当 ResultPanel 在底部时翻转到上方 */
+.info-bar.placement-bottom {
+  top: auto;
+  bottom: calc(50% + 30px);
+}
+
+/* Hint: 默认在机器人下方，当 ResultPanel 在底部时翻转到上方 */
+.hint.placement-bottom {
+  bottom: auto;
+  top: -5px;
+}
+
+.robot-printer.draggable .hint.placement-bottom {
+  bottom: auto;
+  top: -35px;
+}
+

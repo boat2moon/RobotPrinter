@@ -11,6 +11,8 @@ interface InfoBarProps {
   paperWidth: number;
   /** 是否可见 */
   isVisible: boolean;
+  /** ResultPanel 位置 */
+  resultPlacement?: 'top' | 'bottom';
 }
 
 /**
@@ -23,6 +25,7 @@ export function InfoBar({
   offset,
   paperWidth,
   isVisible,
+  resultPlacement = 'top',
 }: InfoBarProps) {
   if (!isVisible || !children) {
     return null;
@@ -36,7 +39,7 @@ export function InfoBar({
 
   return (
     <div 
-      className={`info-bar direction-${direction}`}
+      className={`info-bar direction-${direction} placement-${resultPlacement}`}
       style={positionStyle}
       onClick={(e) => e.stopPropagation()}
     >

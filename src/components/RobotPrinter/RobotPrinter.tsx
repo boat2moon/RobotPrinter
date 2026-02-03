@@ -70,8 +70,13 @@ export interface RobotPrinterProps {
   onPositionChange?: (position: Position) => void;
   /** 是否深色模式（深色模式默认睡眠，浅色模式默认清醒） */
   isDark?: boolean;
+  /** 样式模式：default（默认独立面板）或 glass（毛玻璃统一背景） */
+  styleMode?: 'default' | 'glass';
+  /** 触发高亮/抖动动画的信号（每次值变化时触发） */
+  highlightTrigger?: number;
 }
 
+// 动画阶段枚举
 // 动画阶段枚举
 type AnimationPhase = 
   | 'idle'
@@ -120,10 +125,6 @@ function calculateTilt(position: Position, tiltStrength: number): { tiltX: numbe
   return { tiltX, tiltY };
 }
 
-/**
- * 机器人吐纸动画组件
- * 支持可选拖拽、位置自适应倾斜和吐纸方向
- */
 export function RobotPrinter({
   placeholder = '输入记录...',
   onValueChange,
@@ -150,10 +151,36 @@ export function RobotPrinter({
   position: controlledPosition,
   onPositionChange,
   isDark = false,
+  styleMode = 'default',
+  highlightTrigger = 0,
 }: RobotPrinterProps) {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [inputValue, setInputValue] = useState(defaultValue);
   const [paperOffset, setPaperOffset] = useState(85);
+  
+  // 抖动动画状态
+  const [isShaking, setIsShaking] = useState(false);
+  const shakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 监听 highlightTrigger 触发抖动
+  useEffect(() => {
+    if (highlightTrigger > 0) {
+      setIsShaking(true);
+      setIsSleeping(false); // 唤醒眼睛
+      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current);
+      shakeTimeoutRef.current = setTimeout(() => {
+        setIsShaking(false);
+      }, 400); // 对应 CSS 动画时长
+    }
+    return () => {
+      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current);
+    };
+  }, [highlightTrigger]);
+  
+  // Glass mode: ResultPanel 高度追踪
+  const resultPanelRef = useRef<HTMLDivElement>(null);
+  const [resultPanelHeight, setResultPanelHeight] = useState(0);
+  const [resultPlacement, setResultPlacement] = useState<'top' | 'bottom'>('top');
   
   // 位置状态（仅拖拽模式使用）
   const [internalPosition, setInternalPosition] = useState<Position>(() => 
@@ -352,10 +379,14 @@ export function RobotPrinter({
   const handleSubmit = useCallback(() => {
     // 加载中或倒计时中不可提交
     if (loading || delay > 0) return;
+    
+    // 只有在展开状态下才能提交
+    if (phase !== 'expanded') return;
+
     if (inputValue.trim()) {
       onSubmit?.(inputValue);
     }
-  }, [inputValue, onSubmit, loading, delay]);
+  }, [inputValue, onSubmit, loading, delay, phase]);
 
   // 空闲睡眠检测
   const resetIdleTimer = useCallback(() => {
@@ -423,6 +454,26 @@ export function RobotPrinter({
   const isRotated = ['rotating', 'mouth-opening', 'paper-out', 'expanded', 'paper-in', 'mouth-closing'].includes(phase);
   const isMouthOpen = ['mouth-opening', 'paper-out', 'expanded', 'paper-in'].includes(phase);
   const isPaperVisible = ['paper-out', 'expanded'].includes(phase);
+
+  // Glass mode: 监听 ResultPanel 高度变化
+  useEffect(() => {
+    if (styleMode !== 'glass') return;
+    const el = resultPanelRef.current;
+    if (!el) {
+      setResultPanelHeight(0);
+      return;
+    }
+
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        setResultPanelHeight(entry.contentRect.height);
+      }
+    });
+    observer.observe(el);
+    setResultPanelHeight(el.offsetHeight);
+
+    return () => observer.disconnect();
+  }, [styleMode, resultPanel, isPaperVisible]);
 
   // 转动方向（向左吐=顺时针90°，向右吐=逆时针90°）
   const rotateDirection = paperDirection === 'left' ? 90 : -90;
@@ -551,11 +602,22 @@ export function RobotPrinter({
 
   return (
     <div 
-      className={`robot-printer ${draggable ? 'draggable' : ''}`}
+      className={`robot-printer ${draggable ? 'draggable' : ''} ${styleMode === 'glass' ? 'glass-mode' : ''} ${isShaking ? 'shake-animation' : ''}`}
       ref={containerRef}
       style={containerStyle}
       onMouseDown={handleMouseDown}
     >
+      {/* Glass Mode Background */}
+      {styleMode === 'glass' && (
+        <div
+          className={`ai-island-backdrop ${isPaperVisible ? 'expanded' : ''} ${resultPanel?.visible ? 'has-result' : ''} ${isDark ? 'dark' : ''} direction-${paperDirection} result-${resultPlacement}`}
+          style={{
+            '--paper-width': `${paperWidth}px`,
+            '--paper-offset': `${paperOffset}px`,
+            '--result-height': `${resultPanel && isPaperVisible ? resultPanelHeight : 0}px`,
+          } as React.CSSProperties}
+        />
+      )}
       {/* 纸条 */}
       <Paper
         ref={inputRef}
@@ -570,11 +632,11 @@ export function RobotPrinter({
         loading={loading || delay > 0} // 加载或倒计时期间都视为加载状态（禁用输入）
       />
 
-      {/* 拓展功能菜单 */}
+      {/* 拓展功能菜单 - 有结果面板时隐藏 */}
       <ActionMenu
         actions={actions}
         inputValue={inputValue}
-        isVisible={isPaperVisible}
+        isVisible={isPaperVisible && !resultPanel}
         direction={paperDirection}
         offset={paperOffset}
         paperWidth={paperWidth}
@@ -583,11 +645,16 @@ export function RobotPrinter({
       {/* 结果面板 - 纸条收起时同时隐藏 */}
       {resultPanel && isPaperVisible && (
         <ResultPanel
+          ref={resultPanelRef}
           {...resultPanel}
+          visible={!!resultPanel.visible}
           inputValue={inputValue}
           direction={paperDirection}
           offset={paperOffset}
           paperWidth={paperWidth}
+          styleMode={styleMode}
+          isDark={isDark}
+          onPlacementChange={setResultPlacement}
         />
       )}
 
@@ -597,6 +664,7 @@ export function RobotPrinter({
         offset={paperOffset}
         paperWidth={paperWidth}
         isVisible={isPaperVisible}
+        resultPlacement={resultPlacement}
       >
         {infoContent}
       </InfoBar>
@@ -620,7 +688,7 @@ export function RobotPrinter({
 
       {/* 提示文字 */}
       {showHint && (
-        <div className="hint">
+        <div className={`hint placement-${resultPlacement}`}>
           {draggable ? '拖拽移动 / 点击展开' : '点击机器人收纳/展开'}
         </div>
       )}

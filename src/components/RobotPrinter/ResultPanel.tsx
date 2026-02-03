@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, forwardRef } from 'react';
 import type { ActionConfig } from './menus';
 
 /** 结果面板配置 */
@@ -13,6 +13,8 @@ export interface ResultPanelConfig {
   onClose: () => void;
   /** 面板操作按钮 */
   actions?: ActionConfig[];
+  /** 位置变更回调 */
+  onPlacementChange?: (placement: 'top' | 'bottom') => void;
 }
 
 interface ResultPanelProps extends ResultPanelConfig {
@@ -24,13 +26,39 @@ interface ResultPanelProps extends ResultPanelConfig {
   offset: number;
   /** 纸条宽度 */
   paperWidth: number;
+  /** 样式模式 */
+  styleMode?: 'default' | 'glass';
+  /** 是否深色模式 */
+  isDark?: boolean;
 }
 
 /**
  * 结果面板组件
  * 显示在纸条上方，用于展示 AI 处理结果
  */
-export function ResultPanel({
+// ==========================================
+// 🔧 配置区域：在此调整 ResultPanel 布局参数
+// ==========================================
+
+// --- Glass 模式参数 ---
+// 垂直间距 (距离中心线)
+const GLASS_GAP_TOP = 35; 
+const GLASS_GAP_BOTTOM = 45; 
+// 水平偏移
+const GLASS_OFFSET_LEFT = 30;  // 机器人在右 (direction=left)
+const GLASS_OFFSET_RIGHT = 30; // 机器人在左 (direction=right)
+
+// --- Default 模式参数 ---
+// 垂直间距 (距离中心线)
+const DEFAULT_GAP_TOP = 65; 
+const DEFAULT_GAP_BOTTOM = 65; 
+// 水平偏移
+const DEFAULT_OFFSET_LEFT = 0; // 机器人在右
+const DEFAULT_OFFSET_RIGHT = 0; // 机器人在左
+
+// ==========================================
+
+export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function ResultPanel({
   visible,
   content,
   loading,
@@ -40,8 +68,12 @@ export function ResultPanel({
   direction,
   offset,
   paperWidth,
-}: ResultPanelProps) {
-  const panelRef = useRef<HTMLDivElement>(null);
+  styleMode = 'default',
+  isDark = false,
+  onPlacementChange,
+}, ref) {
+  const internalRef = useRef<HTMLDivElement>(null);
+  const panelRef = (ref as React.RefObject<HTMLDivElement | null>) || internalRef;
   const [placement, setPlacement] = useState<'top' | 'bottom'>('top');
 
   // 检查位置和遮挡
@@ -103,25 +135,31 @@ export function ResultPanel({
     };
 
     // 6. 决策逻辑
-    const topValid = !hasCollision(topCandidate);
-    const bottomValid = !hasCollision(bottomCandidate);
+    let newPlacement: 'top' | 'bottom' = 'top';
 
-    if (topValid) {
-      setPlacement('top');
-    } else if (bottomValid) {
-      setPlacement('bottom');
+    // 优先尝试 Top (默认)
+    // 如果 Top 没遮挡 或者 (Top有遮挡 且 Bottom也有遮挡 且 Top空间更大)
+    // 则保持 Top
+    const topSafe = !hasCollision(topCandidate);
+    const bottomSafe = !hasCollision(bottomCandidate);
+
+    if (topSafe) {
+      newPlacement = 'top';
+    } else if (bottomSafe) {
+      newPlacement = 'bottom';
     } else {
-      // 如果都不满足，优先选择遮挡较少或视口内的（此处简化：优先 Bottom，因为上方通常更挤）
-      // 或者维持 'top' 如果它只是超出了一点点
-      // 策略：如果 Top 超出顶部，强制 Bottom
-      if (topCandidate.top < 0) {
-        setPlacement('bottom');
-      } else {
-        // 默认 Top
-        setPlacement('top');
-      }
+      // 都有遮挡，谁空间大选谁
+      // 简单判断视口空间：上方空间 vs 下方空间
+      const topSpace = centerY;
+      const bottomSpace = window.innerHeight - centerY;
+      newPlacement = topSpace >= bottomSpace ? 'top' : 'bottom';
     }
-  }, []);
+
+    if (newPlacement !== placement) {
+      setPlacement(newPlacement);
+      onPlacementChange?.(newPlacement);
+    }
+  }, [placement, onPlacementChange]);
 
   // 监听 update 和 轮询检测
   useEffect(() => {
@@ -148,14 +186,28 @@ export function ResultPanel({
     return null;
   }
 
+  const effectivePlacement = placement;
+
+  // 根据模式选择对应的配置参数
+  const isGlass = styleMode === 'glass';
+  const currentGapTop = isGlass ? GLASS_GAP_TOP : DEFAULT_GAP_TOP;
+  const currentGapBottom = isGlass ? GLASS_GAP_BOTTOM : DEFAULT_GAP_BOTTOM;
+  const currentOffsetLeft = isGlass ? GLASS_OFFSET_LEFT : DEFAULT_OFFSET_LEFT;
+  const currentOffsetRight = isGlass ? GLASS_OFFSET_RIGHT : DEFAULT_OFFSET_RIGHT;
+
+  // 计算当前的水平偏移
+  const extraOffset = direction === 'left' ? currentOffsetLeft : currentOffsetRight;
+
   // 面板位置样式
   const positionStyle: React.CSSProperties = {
-    [direction === 'left' ? 'right' : 'left']: `${offset}px`,
-    width: `${paperWidth}px`,
+    // 基础偏移 + 这里的额外微调
+    [direction === 'left' ? 'right' : 'left']: `${offset + extraOffset}px`,
+    width: `${paperWidth - extraOffset}px`,
+    
     // 动态决定垂直位置
-    ...(placement === 'top' 
-      ? { bottom: 'calc(50% + 75px)' } 
-      : { top: 'calc(50% + 75px)' }
+    ...(effectivePlacement === 'top' 
+      ? { bottom: `calc(50% + ${currentGapTop}px)` } 
+      : { top: `calc(50% + ${currentGapBottom}px)` }
     ),
   };
 
@@ -165,7 +217,7 @@ export function ResultPanel({
   return (
     <div 
       ref={panelRef}
-      className={`result-panel direction-${direction} ${placement}`}
+      className={`result-panel direction-${direction} ${effectivePlacement} ${styleMode === 'glass' ? 'glass-mode' : ''} ${isDark ? 'dark' : ''}`}
       style={positionStyle}
       onClick={(e) => e.stopPropagation()}
     >
@@ -217,4 +269,4 @@ export function ResultPanel({
       )}
     </div>
   );
-}
+});

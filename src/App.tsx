@@ -11,6 +11,8 @@ function App() {
   
   // 外部控制展开状态（演示受控模式）
   const [expanded, setExpanded] = useState(false);
+  // 高亮/抖动触发器
+  const [highlightTrigger, setHighlightTrigger] = useState(0);
 
   // 外部控制位置和宽度（基准框吸附功能）
   // 外部控制位置和宽度（基准框吸附功能）
@@ -26,6 +28,9 @@ function App() {
   
   // 主题切换（默认浅色）
   const [isDark, setIsDark] = useState(false);
+  
+  // 样式模式切换
+  const [styleMode, setStyleMode] = useState<'default' | 'glass'>('default');
   
   // 根据主题切换 body 类名
   useEffect(() => {
@@ -155,12 +160,26 @@ function App() {
       <header className="header">
         <h1>ROBOT NOTES</h1>
         <p>Drag the robot around. Click to spit out a note.</p>
-        <button 
-          onClick={() => setExpanded(prev => !prev)} 
-          style={{ marginTop: 10, padding: '8px 16px', cursor: 'pointer' }}
-        >
-          外部控制：{expanded ? '收起' : '展开'}
-        </button>
+        <div style={{ display: 'flex', gap: '10px', marginTop: 10, justifyContent: 'center' }}>
+          <button 
+            onClick={() => !expanded ? setExpanded(true) : setHighlightTrigger(h => h + 1)} 
+            style={{ padding: '8px 16px', cursor: 'pointer' }}
+          >
+            外部控制：展开
+          </button>
+          <button 
+            onClick={() => expanded ? setExpanded(false) : setHighlightTrigger(h => h + 1)} 
+            style={{ padding: '8px 16px', cursor: 'pointer' }}
+          >
+            外部控制：收起
+          </button>
+          <button 
+            onClick={() => setStyleMode(prev => prev === 'default' ? 'glass' : 'default')} 
+            style={{ padding: '8px 16px', cursor: 'pointer' }}
+          >
+            样式：{styleMode === 'default' ? '默认' : '毛玻璃'}
+          </button>
+        </div>
       </header>
 
       {/* 基准框 - 可拖拽可调整宽度 */}
@@ -190,7 +209,9 @@ function App() {
         delay={delay}
         expanded={expanded}
         onExpandedChange={setExpanded}
+        highlightTrigger={highlightTrigger}
         isDark={isDark}
+        styleMode={styleMode}
         actions={[
           { 
             label: '翻译', 
