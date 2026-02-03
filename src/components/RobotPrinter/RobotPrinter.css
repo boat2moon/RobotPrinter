@@ -612,6 +612,7 @@
   transition: width calc(var(--paper-duration, 600ms) * 0.8)
     cubic-bezier(0.4, 0, 0.2, 1);
   border: none; /* 收拢时移除边框，防止1px残留 */
+  pointer-events: none; /* 防止点击误触 */
 }
 
 .paper.collapsed::before,
