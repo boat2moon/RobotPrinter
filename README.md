@@ -42,15 +42,18 @@ const DEFAULT_GAP_BOTTOM = 65;
 // ...
 ```
 
-## �️ 技术栈
+## 🛠️ 技术栈
 
 - **React** 19+ (Hooks)
-- **TypeScript** 5.9+
+- **TypeScript** 5.9+ (严格模式)
 - **Vite** 7.x (开发/构建)
+- **Vitest** (单元测试)
 - **CSS Variables** (主题化)
+- **ESLint** + **Prettier** (代码规范)
+- **Husky** (Git Hooks)
 - **sonner** (Toast 通知，Demo 使用)
 
-## �📦 安装
+## 📦 安装
 
 ```bash
 # 将组件文件夹复制到你的项目中
@@ -70,18 +73,27 @@ npm install
 # 启动开发服务器
 npm run dev
 
+# 运行测试
+npm run test
+
+# 类型检查
+npm run type-check
+
 # 构建生产版本
 npm run build
+
+# 构建组件库 (用于 npm 发布)
+npm run build:lib
 ```
 
 ## 🚀 快速开始
 
 ```tsx
-import { RobotPrinter } from "./components/RobotPrinter";
+import { RobotPrinter } from './components/RobotPrinter';
 
 function App() {
   const handleSubmit = (value: string) => {
-    console.log("用户输入:", value);
+    console.log('用户输入:', value);
     // 调用你的 AI API...
   };
 
@@ -138,10 +150,10 @@ function App() {
 ```typescript
 // 眼睛模式配置
 type EyeMode =
-  | { mode: "normal"; blinkInterval?: [number, number] }
-  | { mode: "loading" }
-  | { mode: "countdown" }
-  | { mode: "sleeping" };
+  | { mode: 'normal'; blinkInterval?: [number, number] }
+  | { mode: 'loading' }
+  | { mode: 'countdown' }
+  | { mode: 'sleeping' };
 
 // 菜单动作配置
 interface ActionConfig {
@@ -158,7 +170,7 @@ interface ResultPanelConfig {
   loading: boolean;
   onClose: () => void;
   actions?: ActionConfig[];
-  onPlacementChange?: (placement: "top" | "bottom") => void;
+  onPlacementChange?: (placement: 'top' | 'bottom') => void;
 }
 ```
 
@@ -200,22 +212,50 @@ const [expanded, setExpanded] = useState(false);
 
 ```
 RobotPrinter/
-├── index.ts              # 主入口，导出所有公共 API
-├── RobotPrinter.tsx      # 主组件
-├── RobotPrinter.css      # 样式（CSS Variables 主题化）
-├── Paper.tsx             # 纸条输入框组件
-├── ResultPanel.tsx       # 结果面板组件
-├── InfoBar.tsx           # 底部提示栏组件
-├── menus/                # 菜单模块
-│   ├── index.ts          # 菜单模块入口
-│   ├── types.ts          # 菜单类型定义
-│   ├── ActionMenu.tsx    # 菜单容器组件
-│   └── ActionButton.tsx  # 菜单按钮组件
-└── robot/                # 机器人头部模块
-    ├── index.ts          # 头部模块入口
-    ├── RobotHead.tsx     # 头部主组件
-    ├── Eyes.tsx          # 眼睛组件（支持多种模式）
-    └── Antenna.tsx       # 天线组件（加载时变绿色可中止）
+├── index.ts                # 主入口，导出所有公共 API
+├── RobotPrinter.tsx        # 主组件
+├── RobotPrinterRoot.tsx    # 复合组件根容器
+├── types.ts                # 统一类型定义
+├── constants.ts            # 常量配置
+├── Paper.tsx               # 纸条输入框组件
+├── ResultPanel.tsx         # 结果面板组件
+├── InfoBar.tsx             # 底部提示栏组件
+├── context/                # Context 模块
+│   ├── RobotPrinterContext.tsx  # Provider
+│   └── useRobotPrinter.ts       # Context Hooks
+├── hooks/                  # 自定义 Hooks
+│   ├── index.ts
+│   ├── useDrag.ts          # 拖拽逻辑
+│   ├── useAnimationPhase.ts # 动画阶段管理
+│   ├── useIdleDetection.ts  # 空闲检测
+│   └── useTilt.ts          # 倾斜/阴影计算
+├── utils/                  # 工具函数
+│   ├── index.ts
+│   └── geometry.ts         # 几何计算
+├── styles/                 # 模块化 CSS
+│   ├── index.css           # 样式入口
+│   ├── tokens.css          # 设计标记/CSS 变量
+│   ├── animations.css      # 动画关键帧
+│   ├── base.css            # 基础容器样式
+│   ├── robot-head.css      # 机器人头部
+│   ├── paper.css           # 纸条样式
+│   ├── result-panel.css    # 结果面板
+│   ├── action-menu.css     # 操作菜单
+│   └── glass-backdrop.css  # 毛玻璃效果
+├── menus/                  # 菜单模块
+│   ├── index.ts
+│   ├── types.ts
+│   ├── ActionMenu.tsx
+│   └── ActionButton.tsx
+├── robot/                  # 机器人头部模块
+│   ├── index.ts
+│   ├── RobotHead.tsx
+│   ├── Eyes.tsx
+│   └── Antenna.tsx
+└── __tests__/              # 单元测试
+    ├── geometry.test.ts
+    ├── useIdleDetection.test.ts
+    └── useTilt.test.ts
 ```
 
 ---
@@ -277,9 +317,12 @@ const DEFAULT_GAP_BOTTOM = 65;
 ## 🛠️ Tech Stack
 
 - **React** 19+ (Hooks)
-- **TypeScript** 5.9+
+- **TypeScript** 5.9+ (Strict mode)
 - **Vite** 7.x (Development/Build)
+- **Vitest** (Unit testing)
 - **CSS Variables** (Theming)
+- **ESLint** + **Prettier** (Code style)
+- **Husky** (Git Hooks)
 - **sonner** (Toast notifications, used in Demo)
 
 ## 📦 Installation
@@ -302,24 +345,31 @@ npm install
 # Start dev server
 npm run dev
 
+# Run tests
+npm run test
+
+# Type check
+npm run type-check
+
 # Build for production
 npm run build
+
+# Build component library (for npm publish)
+npm run build:lib
 ```
 
 ## 🚀 Quick Start
 
 ```tsx
-import { RobotPrinter } from "./components/RobotPrinter";
+import { RobotPrinter } from './components/RobotPrinter';
 
 function App() {
   const handleSubmit = (value: string) => {
-    console.log("User input:", value);
+    console.log('User input:', value);
     // Call your AI API...
   };
 
-  return (
-    <RobotPrinter placeholder="Enter command..." onSubmit={handleSubmit} />
-  );
+  return <RobotPrinter placeholder="Enter command..." onSubmit={handleSubmit} />;
 }
 ```
 
@@ -372,10 +422,10 @@ function App() {
 ```typescript
 // Eye Mode Configuration
 type EyeMode =
-  | { mode: "normal"; blinkInterval?: [number, number] }
-  | { mode: "loading" }
-  | { mode: "countdown" }
-  | { mode: "sleeping" };
+  | { mode: 'normal'; blinkInterval?: [number, number] }
+  | { mode: 'loading' }
+  | { mode: 'countdown' }
+  | { mode: 'sleeping' };
 
 // Action Menu Configuration
 interface ActionConfig {
@@ -392,7 +442,7 @@ interface ResultPanelConfig {
   loading: boolean;
   onClose: () => void;
   actions?: ActionConfig[];
-  onPlacementChange?: (placement: "top" | "bottom") => void;
+  onPlacementChange?: (placement: 'top' | 'bottom') => void;
 }
 ```
 
@@ -434,22 +484,50 @@ const [expanded, setExpanded] = useState(false);
 
 ```
 RobotPrinter/
-├── index.ts              # Entry point, exports all public APIs
-├── RobotPrinter.tsx      # Main component
-├── RobotPrinter.css      # Styles (CSS Variables theming)
-├── Paper.tsx             # Paper input component
-├── ResultPanel.tsx       # Result panel component
-├── InfoBar.tsx           # Info bar component
-├── menus/                # Menu module
-│   ├── index.ts          # Menu module entry
-│   ├── types.ts          # Menu type definitions
-│   ├── ActionMenu.tsx    # Menu container component
-│   └── ActionButton.tsx  # Menu button component
-└── robot/                # Robot head module
-    ├── index.ts          # Head module entry
-    ├── RobotHead.tsx     # Head main component
-    ├── Eyes.tsx          # Eyes component (supports multiple modes)
-    └── Antenna.tsx       # Antenna (turns green when loading, clickable to abort)
+├── index.ts                # Entry point, exports all public APIs
+├── RobotPrinter.tsx        # Main component
+├── RobotPrinterRoot.tsx    # Compound component root container
+├── types.ts                # Unified type definitions
+├── constants.ts            # Constants configuration
+├── Paper.tsx               # Paper input component
+├── ResultPanel.tsx         # Result panel component
+├── InfoBar.tsx             # Info bar component
+├── context/                # Context module
+│   ├── RobotPrinterContext.tsx  # Provider
+│   └── useRobotPrinter.ts       # Context Hooks
+├── hooks/                  # Custom Hooks
+│   ├── index.ts
+│   ├── useDrag.ts          # Drag logic
+│   ├── useAnimationPhase.ts # Animation phase management
+│   ├── useIdleDetection.ts  # Idle detection
+│   └── useTilt.ts          # Tilt/shadow calculation
+├── utils/                  # Utility functions
+│   ├── index.ts
+│   └── geometry.ts         # Geometry calculations
+├── styles/                 # Modular CSS
+│   ├── index.css           # Style entry
+│   ├── tokens.css          # Design tokens/CSS variables
+│   ├── animations.css      # Animation keyframes
+│   ├── base.css            # Base container styles
+│   ├── robot-head.css      # Robot head
+│   ├── paper.css           # Paper styles
+│   ├── result-panel.css    # Result panel
+│   ├── action-menu.css     # Action menu
+│   └── glass-backdrop.css  # Glassmorphism effect
+├── menus/                  # Menu module
+│   ├── index.ts
+│   ├── types.ts
+│   ├── ActionMenu.tsx
+│   └── ActionButton.tsx
+├── robot/                  # Robot head module
+│   ├── index.ts
+│   ├── RobotHead.tsx
+│   ├── Eyes.tsx
+│   └── Antenna.tsx
+└── __tests__/              # Unit tests
+    ├── geometry.test.ts
+    ├── useIdleDetection.test.ts
+    └── useTilt.test.ts
 ```
 
 ---
