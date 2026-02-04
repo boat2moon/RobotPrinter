@@ -96,3 +96,38 @@
   bottom: auto;
   top: calc(50% - 87.5px);
 }
+
+/* ========================================
+   收起动画状态 (Glass Mode 特有)
+   当有 ResultPanel 时收起，执行平滑的收缩+淡出动画
+   ======================================== */
+
+.ai-island-backdrop.collapsing {
+  /* 收缩到机器人方向：宽度和高度同时收缩，配合淡出 */
+  width: 0 !important;
+  height: 175px !important;
+  opacity: 0 !important;
+
+  /* 使用与展开相同的曲线，但时间略短 */
+  transition:
+    width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease;
+
+  /* 设置变换原点为机器人侧（右侧） */
+  transform-origin: right center;
+}
+
+/* 向右吐纸时，收缩原点在左侧 */
+.ai-island-backdrop.direction-right.collapsing {
+  transform-origin: left center;
+}
+
+/* 结果面板在下方时，收缩原点调整 */
+.ai-island-backdrop.result-bottom.collapsing {
+  transform-origin: right top;
+}
+
+.ai-island-backdrop.direction-right.result-bottom.collapsing {
+  transform-origin: left top;
+}

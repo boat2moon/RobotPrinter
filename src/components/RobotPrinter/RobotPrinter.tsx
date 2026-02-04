@@ -95,6 +95,12 @@ export function RobotPrinter({
   const [resultPanelHeight, setResultPanelHeight] = useState(0);
   const [resultPlacement, setResultPlacement] = useState<'top' | 'bottom'>('top');
 
+  // Glass mode: 毛玻璃收起动画状态
+  // 用于在收起时保持尺寸并执行平滑收缩动画，避免高度跳变
+  const [isGlassCollapsing, setIsGlassCollapsing] = useState(false);
+  const [frozenResultHeight, setFrozenResultHeight] = useState(0);
+  const [frozenPlacement, setFrozenPlacement] = useState<'top' | 'bottom'>('top');
+
   // 位置状态（仅拖拽模式使用）
   const [internalPosition, setInternalPosition] = useState<Position>(
     () => defaultPosition || { x: window.innerWidth - 100, y: window.innerHeight - 100 }
@@ -158,6 +164,14 @@ export function RobotPrinter({
 
   // 收起动画序列
   const collapseSequence = useCallback(() => {
+    // Glass mode: 如果有 ResultPanel，先触发毛玻璃收缩动画
+    if (styleMode === 'glass' && resultPanel?.visible) {
+      // 冻结当前尺寸和位置，然后触发收缩动画
+      setFrozenResultHeight(resultPanelHeight);
+      setFrozenPlacement(resultPlacement);
+      setIsGlassCollapsing(true);
+    }
+
     setPhase('paper-in');
 
     setTimeout(() => {
@@ -168,11 +182,20 @@ export function RobotPrinter({
 
         setTimeout(() => {
           setPhase('idle');
+          setIsGlassCollapsing(false); // 收起完成，重置状态
           onExpandedChange?.(false); // 通知外部收起完成
         }, rotateDuration);
       }, 200);
     }, paperDuration * 0.8);
-  }, [rotateDuration, paperDuration, onExpandedChange]);
+  }, [
+    rotateDuration,
+    paperDuration,
+    onExpandedChange,
+    styleMode,
+    resultPanel?.visible,
+    resultPanelHeight,
+    resultPlacement,
+  ]);
 
   // 响应外部 expanded prop 变化
 
@@ -555,17 +578,27 @@ export function RobotPrinter({
         <div
           className={clsx(
             'ai-island-backdrop',
-            { expanded: isPaperVisible },
-            { 'has-result': isResultPanelVisible },
+            // 收起动画期间保持 expanded 和 has-result 状态，直到动画结束
+            { expanded: isPaperVisible || isGlassCollapsing },
+            { 'has-result': isResultPanelVisible || isGlassCollapsing },
+            { collapsing: isGlassCollapsing },
             { dark: isDark },
             `direction-${paperDirection}`,
-            `result-${effectivePlacement}`
+            // 收起时使用冻结的位置
+            `result-${isGlassCollapsing ? frozenPlacement : effectivePlacement}`
           )}
           style={
             {
               '--paper-width': `${paperWidth}px`,
               '--paper-offset': `${paperOffset}px`,
-              '--result-height': `${resultPanel && isPaperVisible ? resultPanelHeight : 0}px`,
+              // 收起时使用冻结的高度
+              '--result-height': `${
+                isGlassCollapsing
+                  ? frozenResultHeight
+                  : resultPanel && isPaperVisible
+                    ? resultPanelHeight
+                    : 0
+              }px`,
             } as React.CSSProperties
           }
         />
