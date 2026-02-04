@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { memo } from 'react';
+import clsx from 'clsx';
 
 interface InfoBarProps {
   /** 底部提示内容 */
@@ -19,7 +20,7 @@ interface InfoBarProps {
  * 底部提示信息组件
  * 显示在纸条下方，用于显示 Token 剩余、免责声明等信息
  */
-export function InfoBar({
+export const InfoBar = memo(function InfoBar({
   children,
   direction,
   offset,
@@ -38,12 +39,12 @@ export function InfoBar({
   };
 
   return (
-    <div 
-      className={`info-bar direction-${direction} placement-${resultPlacement}`}
+    <div
+      className={clsx('info-bar', `direction-${direction}`, `placement-${resultPlacement}`)}
       style={positionStyle}
-      onClick={(e) => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
     >
       {children}
     </div>
   );
-}
+});

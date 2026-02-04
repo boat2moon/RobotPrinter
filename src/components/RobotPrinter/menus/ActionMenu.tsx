@@ -1,3 +1,6 @@
+import { memo } from 'react';
+import clsx from 'clsx';
+
 import type { ActionConfig } from './types';
 import { ActionButton } from './ActionButton';
 
@@ -20,7 +23,7 @@ interface ActionMenuProps {
  * 拓展功能菜单组件
  * 显示在纸条上方居中位置
  */
-export function ActionMenu({
+export const ActionMenu = memo(function ActionMenu({
   actions,
   inputValue,
   isVisible,
@@ -39,18 +42,14 @@ export function ActionMenu({
   };
 
   return (
-    <div 
-      className={`action-menu direction-${direction}`}
+    <div
+      className={clsx('action-menu', `direction-${direction}`)}
       style={positionStyle}
-      onClick={(e) => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
     >
       {actions.map((action, index) => (
-        <ActionButton
-          key={index}
-          action={action}
-          inputValue={inputValue}
-        />
+        <ActionButton key={index} action={action} inputValue={inputValue} />
       ))}
     </div>
   );
-}
+});

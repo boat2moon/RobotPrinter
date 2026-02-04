@@ -24,7 +24,7 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      // 导入排序规范
+      // 导入规范
       'import/order': [
         'warn',
         {
@@ -32,6 +32,9 @@ export default defineConfig([
           'newlines-between': 'always',
         },
       ],
+      'import/no-cycle': 'error', // 禁止循环依赖
+      'import/no-self-import': 'error', // 禁止自引用
+      'import/no-useless-path-segments': 'warn', // 避免无用路径片段
       // React Hooks 规则调整
       'react-hooks/set-state-in-effect': 'off', // 允许在 effect 中 setState（有效用例如响应 prop 变化）
       'react-hooks/exhaustive-deps': 'warn', // 降级为警告

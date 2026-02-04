@@ -47,10 +47,11 @@ const DEFAULT_GAP_BOTTOM = 65;
 - **React** 19+ (Hooks)
 - **TypeScript** 5.9+ (严格模式)
 - **Vite** 7.x (开发/构建)
-- **Vitest** (单元测试)
+- **Vitest** (单元测试，114+ 测试用例)
 - **CSS Variables** (主题化)
 - **ESLint** + **Prettier** (代码规范)
-- **Husky** (Git Hooks)
+- **Husky** + **Commitlint** (Git Hooks + 提交规范)
+- **GitHub Actions** (CI/CD)
 - **sonner** (Toast 通知，Demo 使用)
 
 ## 📦 安装
@@ -76,6 +77,9 @@ npm run dev
 # 运行测试
 npm run test
 
+# 测试覆盖率
+npm run test:coverage
+
 # 类型检查
 npm run type-check
 
@@ -84,6 +88,9 @@ npm run build
 
 # 构建组件库 (用于 npm 发布)
 npm run build:lib
+
+# 构建并生成 Bundle 分析报告
+npm run build:lib:analyze
 ```
 
 ## 🚀 快速开始
@@ -99,6 +106,45 @@ function App() {
 
   return <RobotPrinter placeholder="输入指令..." onSubmit={handleSubmit} />;
 }
+```
+
+### 使用预设配置
+
+内置多种场景预设，开箱即用：
+
+```tsx
+import { RobotPrinter, chatPreset, darkPreset, compactPreset } from './components/RobotPrinter';
+
+// AI 聊天场景
+<RobotPrinter {...chatPreset} onSubmit={handleSubmit} />
+
+// 深色主题
+<RobotPrinter {...darkPreset} onSubmit={handleSubmit} />
+
+// 紧凑模式
+<RobotPrinter {...compactPreset} onSubmit={handleSubmit} />
+```
+
+**可用预设**：`compactPreset` | `widePreset` | `chatPreset` | `darkPreset` | `demoPreset` | `minimalPreset` | `floatingPreset` | `loadingPreset`
+
+### 错误边界包装
+
+推荐使用错误边界包装组件，防止渲染错误导致页面崩溃：
+
+```tsx
+import { RobotPrinterErrorBoundary, RobotPrinter } from './components/RobotPrinter';
+
+<RobotPrinterErrorBoundary
+  fallback={(error, reset) => (
+    <div>
+      <p>组件出错: {error.message}</p>
+      <button onClick={reset}>重试</button>
+    </div>
+  )}
+>
+  <RobotPrinter />
+</RobotPrinterErrorBoundary>
+```
 ```
 
 ## 📖 API 文档
@@ -217,6 +263,9 @@ RobotPrinter/
 ├── RobotPrinterRoot.tsx    # 复合组件根容器
 ├── types.ts                # 统一类型定义
 ├── constants.ts            # 常量配置
+├── defaults.ts             # Props 默认值管理
+├── presets.ts              # 配置预设 (chat, dark, compact...)
+├── ErrorBoundary.tsx       # 错误边界组件
 ├── Paper.tsx               # 纸条输入框组件
 ├── ResultPanel.tsx         # 结果面板组件
 ├── InfoBar.tsx             # 底部提示栏组件
@@ -227,11 +276,13 @@ RobotPrinter/
 │   ├── index.ts
 │   ├── useDrag.ts          # 拖拽逻辑
 │   ├── useAnimationPhase.ts # 动画阶段管理
+│   ├── useAnimationMachine.ts # 状态机动画 (useReducer)
 │   ├── useIdleDetection.ts  # 空闲检测
 │   └── useTilt.ts          # 倾斜/阴影计算
 ├── utils/                  # 工具函数
 │   ├── index.ts
-│   └── geometry.ts         # 几何计算
+│   ├── geometry.ts         # 几何计算
+│   └── devWarnings.ts      # 开发环境警告
 ├── styles/                 # 模块化 CSS
 │   ├── index.css           # 样式入口
 │   ├── tokens.css          # 设计标记/CSS 变量
@@ -252,10 +303,15 @@ RobotPrinter/
 │   ├── RobotHead.tsx
 │   ├── Eyes.tsx
 │   └── Antenna.tsx
-└── __tests__/              # 单元测试
+└── __tests__/              # 单元测试 (114+ tests)
     ├── geometry.test.ts
     ├── useIdleDetection.test.ts
-    └── useTilt.test.ts
+    ├── useTilt.test.ts
+    ├── useAnimationMachine.test.ts
+    ├── devWarnings.test.ts
+    ├── defaults.test.ts
+    ├── RobotPrinterContext.test.tsx
+    └── RobotPrinterRoot.test.tsx
 ```
 
 ---
@@ -319,10 +375,11 @@ const DEFAULT_GAP_BOTTOM = 65;
 - **React** 19+ (Hooks)
 - **TypeScript** 5.9+ (Strict mode)
 - **Vite** 7.x (Development/Build)
-- **Vitest** (Unit testing)
+- **Vitest** (Unit testing, 114+ test cases)
 - **CSS Variables** (Theming)
 - **ESLint** + **Prettier** (Code style)
-- **Husky** (Git Hooks)
+- **Husky** + **Commitlint** (Git Hooks + Commit conventions)
+- **GitHub Actions** (CI/CD)
 - **sonner** (Toast notifications, used in Demo)
 
 ## 📦 Installation
@@ -348,6 +405,9 @@ npm run dev
 # Run tests
 npm run test
 
+# Test coverage
+npm run test:coverage
+
 # Type check
 npm run type-check
 
@@ -356,6 +416,9 @@ npm run build
 
 # Build component library (for npm publish)
 npm run build:lib
+
+# Build with bundle analysis report
+npm run build:lib:analyze
 ```
 
 ## 🚀 Quick Start
@@ -371,6 +434,45 @@ function App() {
 
   return <RobotPrinter placeholder="Enter command..." onSubmit={handleSubmit} />;
 }
+```
+
+### Using Presets
+
+Built-in presets for common scenarios:
+
+```tsx
+import { RobotPrinter, chatPreset, darkPreset, compactPreset } from './components/RobotPrinter';
+
+// AI Chat scenario
+<RobotPrinter {...chatPreset} onSubmit={handleSubmit} />
+
+// Dark theme
+<RobotPrinter {...darkPreset} onSubmit={handleSubmit} />
+
+// Compact mode
+<RobotPrinter {...compactPreset} onSubmit={handleSubmit} />
+```
+
+**Available presets**: `compactPreset` | `widePreset` | `chatPreset` | `darkPreset` | `demoPreset` | `minimalPreset` | `floatingPreset` | `loadingPreset`
+
+### Error Boundary Wrapper
+
+Recommended to wrap with error boundary to prevent render errors from crashing the page:
+
+```tsx
+import { RobotPrinterErrorBoundary, RobotPrinter } from './components/RobotPrinter';
+
+<RobotPrinterErrorBoundary
+  fallback={(error, reset) => (
+    <div>
+      <p>Component error: {error.message}</p>
+      <button onClick={reset}>Retry</button>
+    </div>
+  )}
+>
+  <RobotPrinter />
+</RobotPrinterErrorBoundary>
+```
 ```
 
 ## 📖 API Reference
@@ -489,6 +591,9 @@ RobotPrinter/
 ├── RobotPrinterRoot.tsx    # Compound component root container
 ├── types.ts                # Unified type definitions
 ├── constants.ts            # Constants configuration
+├── defaults.ts             # Props defaults management
+├── presets.ts              # Configuration presets (chat, dark, compact...)
+├── ErrorBoundary.tsx       # Error boundary component
 ├── Paper.tsx               # Paper input component
 ├── ResultPanel.tsx         # Result panel component
 ├── InfoBar.tsx             # Info bar component
@@ -499,11 +604,13 @@ RobotPrinter/
 │   ├── index.ts
 │   ├── useDrag.ts          # Drag logic
 │   ├── useAnimationPhase.ts # Animation phase management
+│   ├── useAnimationMachine.ts # State machine animation (useReducer)
 │   ├── useIdleDetection.ts  # Idle detection
 │   └── useTilt.ts          # Tilt/shadow calculation
 ├── utils/                  # Utility functions
 │   ├── index.ts
-│   └── geometry.ts         # Geometry calculations
+│   ├── geometry.ts         # Geometry calculations
+│   └── devWarnings.ts      # Development warnings
 ├── styles/                 # Modular CSS
 │   ├── index.css           # Style entry
 │   ├── tokens.css          # Design tokens/CSS variables
@@ -524,10 +631,15 @@ RobotPrinter/
 │   ├── RobotHead.tsx
 │   ├── Eyes.tsx
 │   └── Antenna.tsx
-└── __tests__/              # Unit tests
+└── __tests__/              # Unit tests (114+ tests)
     ├── geometry.test.ts
     ├── useIdleDetection.test.ts
-    └── useTilt.test.ts
+    ├── useTilt.test.ts
+    ├── useAnimationMachine.test.ts
+    ├── devWarnings.test.ts
+    ├── defaults.test.ts
+    ├── RobotPrinterContext.test.tsx
+    └── RobotPrinterRoot.test.tsx
 ```
 
 ---

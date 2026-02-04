@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:lib": "tsc --declaration --emitDeclarationOnly --outDir dist/lib/types && vite build --config vite.lib.config.ts",
+    "build:lib:analyze": "npm run build:lib && echo '\\n📊 Bundle analysis report: dist/lib/stats.html'",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
@@ -34,6 +35,8 @@
     "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",
@@ -55,6 +58,7 @@
     "postcss": "^8.5.4",
     "postcss-nesting": "^13.0.1",
     "prettier": "^3.5.3",
+    "rollup-plugin-visualizer": "^6.0.5",
     "serve": "^14.2.5",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",

@@ -11,3 +11,11 @@ export {
   getPaperDirection,
   getRotateDirection,
 } from './geometry';
+
+export {
+  warnOnce,
+  devAssert,
+  warnDeprecated,
+  warnControlledUncontrolled,
+  clearWarnings,
+} from './devWarnings';

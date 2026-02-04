@@ -2,9 +2,20 @@ import { resolve } from 'path';
 
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Bundle 分析报告 (仅在 ANALYZE=true 时生成)
+    visualizer({
+      filename: 'dist/lib/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap', // 可选: 'sunburst', 'network', 'treemap'
+    }),
+  ],
   build: {
     lib: {
       // 入口文件

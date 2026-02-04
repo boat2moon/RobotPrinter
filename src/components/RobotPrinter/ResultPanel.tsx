@@ -1,4 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect, forwardRef } from 'react';
+import clsx from 'clsx';
+
 import type { ActionConfig } from './menus';
 
 /** 结果面板配置 */
@@ -44,37 +46,40 @@ interface ResultPanelProps extends ResultPanelConfig {
 
 // --- Glass 模式参数 ---
 // 垂直间距 (距离中心线)
-const GLASS_GAP_TOP = 35; 
-const GLASS_GAP_BOTTOM = 40; 
+const GLASS_GAP_TOP = 35;
+const GLASS_GAP_BOTTOM = 40;
 // 水平偏移
-const GLASS_OFFSET_LEFT = 30;  // 机器人在右 (direction=left)
+const GLASS_OFFSET_LEFT = 30; // 机器人在右 (direction=left)
 const GLASS_OFFSET_RIGHT = 30; // 机器人在左 (direction=right)
 
 // --- Default 模式参数 ---
 // 垂直间距 (距离中心线)
-const DEFAULT_GAP_TOP = 65; 
-const DEFAULT_GAP_BOTTOM = 65; 
+const DEFAULT_GAP_TOP = 65;
+const DEFAULT_GAP_BOTTOM = 65;
 // 水平偏移
 const DEFAULT_OFFSET_LEFT = 0; // 机器人在右
 const DEFAULT_OFFSET_RIGHT = 0; // 机器人在左
 
 // ==========================================
 
-export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function ResultPanel({
-  visible,
-  content,
-  loading,
-  onClose,
-  actions = [],
-  inputValue,
-  direction,
-  offset,
-  paperWidth,
-  styleMode = 'default',
-  isDark = false,
-  onPlacementChange,
-  defaultPlacement = 'top',
-}, ref) {
+export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function ResultPanel(
+  {
+    visible,
+    content,
+    loading,
+    onClose,
+    actions = [],
+    inputValue,
+    direction,
+    offset,
+    paperWidth,
+    styleMode = 'default',
+    isDark = false,
+    onPlacementChange,
+    defaultPlacement = 'top',
+  },
+  ref
+) {
   const internalRef = useRef<HTMLDivElement>(null);
   const panelRef = (ref as React.RefObject<HTMLDivElement | null>) || internalRef;
   const [placement, setPlacement] = useState<'top' | 'bottom'>(defaultPlacement);
@@ -92,11 +97,11 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
     // 我们可以直接获取父级元素的位置
     const parentElement = panelRef.current.parentElement;
     if (!parentElement) return;
-    
+
     const parentRect = parentElement.getBoundingClientRect();
     // 纸条中心在父容器垂直中心
     const centerY = parentRect.top + parentRect.height / 2;
-    
+
     // 3. 定义候选位置区域 (ViewPort Coordinates)
     // Top: 纸条中心上方 75px 起 (margin-bottom)
     const topCandidate = {
@@ -129,8 +134,14 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
 
       // 障碍物遮挡检测
       if (obstacleRect) {
-        const intersectX = Math.max(0, Math.min(rect.right, obstacleRect.right) - Math.max(rect.left, obstacleRect.left));
-        const intersectY = Math.max(0, Math.min(rect.bottom, obstacleRect.bottom) - Math.max(rect.top, obstacleRect.top));
+        const intersectX = Math.max(
+          0,
+          Math.min(rect.right, obstacleRect.right) - Math.max(rect.left, obstacleRect.left)
+        );
+        const intersectY = Math.max(
+          0,
+          Math.min(rect.bottom, obstacleRect.bottom) - Math.max(rect.top, obstacleRect.top)
+        );
         if (intersectX > 0 && intersectY > 0) return true; // 有重叠
       }
 
@@ -162,7 +173,7 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
       setPlacement(newPlacement);
       onPlacementChange?.(newPlacement);
     }
-  }, [placement, onPlacementChange]);
+  }, [panelRef, placement, onPlacementChange]);
 
   // 监听 update 和 轮询检测
   useEffect(() => {
@@ -206,30 +217,31 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
     // 基础偏移 + 这里的额外微调
     [direction === 'left' ? 'right' : 'left']: `${offset + extraOffset}px`,
     width: `${paperWidth - extraOffset}px`,
-    
+
     // 动态决定垂直位置
-    ...(effectivePlacement === 'top' 
-      ? { bottom: `calc(50% + ${currentGapTop}px)` } 
-      : { top: `calc(50% + ${currentGapBottom}px)` }
-    ),
+    ...(effectivePlacement === 'top'
+      ? { bottom: `calc(50% + ${currentGapTop}px)` }
+      : { top: `calc(50% + ${currentGapBottom}px)` }),
   };
 
   // 按换行符拆分内容，用于分段显示
   const contentLines = content.split('\n').filter(line => line.trim() !== '');
 
   return (
-    <div 
+    <div
       ref={panelRef}
-      className={`result-panel direction-${direction} ${effectivePlacement} ${styleMode === 'glass' ? 'glass-mode' : ''} ${isDark ? 'dark' : ''}`}
+      className={clsx(
+        'result-panel',
+        `direction-${direction}`,
+        effectivePlacement,
+        { 'glass-mode': styleMode === 'glass' },
+        { dark: isDark }
+      )}
       style={positionStyle}
-      onClick={(e) => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
     >
       {/* 关闭按钮 */}
-      <button 
-        className="result-panel-close"
-        onClick={onClose}
-        title="关闭"
-      >
+      <button className="result-panel-close" onClick={onClose} title="关闭">
         ✕
       </button>
 
@@ -250,9 +262,7 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
         ))}
 
         {/* 加载中的光标效果 */}
-        {loading && content && (
-          <span className="typing-cursor">▋</span>
-        )}
+        {loading && content && <span className="typing-cursor">▋</span>}
       </div>
 
       {/* 操作按钮区域 */}

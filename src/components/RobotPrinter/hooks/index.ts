@@ -6,5 +6,11 @@
 
 export { useDrag } from './useDrag';
 export { useAnimationPhase } from './useAnimationPhase';
+export { useAnimationMachine, animationReducer } from './useAnimationMachine';
+export type {
+  AnimationEvent,
+  UseAnimationMachineOptions,
+  UseAnimationMachineReturn,
+} from './useAnimationMachine';
 export { useIdleDetection } from './useIdleDetection';
 export { useTilt } from './useTilt';

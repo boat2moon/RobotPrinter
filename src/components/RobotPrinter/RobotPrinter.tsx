@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import clsx from 'clsx';
 
 import './styles/index.css';
 import { Paper } from './Paper';
@@ -6,7 +7,7 @@ import { RobotHead } from './robot';
 import { ActionMenu } from './menus';
 import { ResultPanel } from './ResultPanel';
 import { InfoBar } from './InfoBar';
-import { calculateTilt } from './utils';
+import { calculateTilt, warnOnce, warnControlledUncontrolled } from './utils';
 import { LAYOUT } from './constants';
 import type { Position, EyeMode, RobotPrinterProps, AnimationPhase } from './types';
 
@@ -42,6 +43,25 @@ export function RobotPrinter({
   styleMode = 'default',
   highlightTrigger = 0,
 }: RobotPrinterProps) {
+  // ============ 开发环境警告 ============
+  if (import.meta.env.DEV) {
+    // 检测受控模式缺少回调
+    warnControlledUncontrolled('expanded', expanded !== undefined, onExpandedChange !== undefined);
+    warnControlledUncontrolled(
+      'position',
+      controlledPosition !== undefined,
+      onPositionChange !== undefined
+    );
+
+    // 检测冲突配置
+    if (loading && delay > 0) {
+      warnOnce(
+        'loading-delay-conflict',
+        'Both "loading" and "delay" are set. The delay countdown will be hidden during loading state.'
+      );
+    }
+  }
+
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [inputValue, setInputValue] = useState(defaultValue);
   const [paperOffset, setPaperOffset] = useState(85);
@@ -520,7 +540,12 @@ export function RobotPrinter({
 
   return (
     <div
-      className={`robot-printer ${draggable ? 'draggable' : ''} ${styleMode === 'glass' ? 'glass-mode' : ''} ${isShaking ? 'shake-animation' : ''}`}
+      className={clsx(
+        'robot-printer',
+        { draggable },
+        { 'glass-mode': styleMode === 'glass' },
+        { 'shake-animation': isShaking }
+      )}
       ref={containerRef}
       style={containerStyle}
       onMouseDown={handleMouseDown}
@@ -528,7 +553,14 @@ export function RobotPrinter({
       {/* Glass Mode Background */}
       {styleMode === 'glass' && (
         <div
-          className={`ai-island-backdrop ${isPaperVisible ? 'expanded' : ''} ${isResultPanelVisible ? 'has-result' : ''} ${isDark ? 'dark' : ''} direction-${paperDirection} result-${effectivePlacement}`}
+          className={clsx(
+            'ai-island-backdrop',
+            { expanded: isPaperVisible },
+            { 'has-result': isResultPanelVisible },
+            { dark: isDark },
+            `direction-${paperDirection}`,
+            `result-${effectivePlacement}`
+          )}
           style={
             {
               '--paper-width': `${paperWidth}px`,
