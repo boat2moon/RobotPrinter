@@ -35,10 +35,12 @@ export const ReferenceBox = ({
   // 本地临时状态，用于输入框编辑
   const [tempWidth, setTempWidth] = useState(String(width));
   const dockRef = useRef<HTMLDivElement>(null);
-  
+
   // 拖拽状态
   const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef<{ x: number; y: number; startX: number; startY: number } | null>(null);
+  const dragStartRef = useRef<{ x: number; y: number; startX: number; startY: number } | null>(
+    null
+  );
 
   // 当外部宽度 update 时同步本地状态
   useEffect(() => {
@@ -48,8 +50,9 @@ export const ReferenceBox = ({
   // 拖拽处理
   const handleMouseDown = (e: React.MouseEvent) => {
     // 忽略 input 和 checkbox 点击
-    if (['input', 'button', 'label'].includes((e.target as HTMLElement).tagName.toLowerCase())) return;
-    
+    if (['input', 'button', 'label'].includes((e.target as HTMLElement).tagName.toLowerCase()))
+      return;
+
     e.preventDefault();
     setIsDragging(true);
     dragStartRef.current = {
@@ -67,7 +70,7 @@ export const ReferenceBox = ({
       if (!dragStartRef.current) return;
       const deltaX = e.clientX - dragStartRef.current.x;
       const deltaY = e.clientY - dragStartRef.current.y;
-      
+
       onPositionChange({
         x: dragStartRef.current.startX + deltaX,
         y: dragStartRef.current.startY + deltaY,
@@ -105,31 +108,33 @@ export const ReferenceBox = ({
   };
 
   return (
-    <div 
+    <div
       ref={dockRef}
       className="reference-box"
-      style={{ 
-        left: position.x, 
+      style={{
+        left: position.x,
         top: position.y,
         width: width,
-        cursor: isDragging ? 'grabbing' : 'grab'
+        cursor: isDragging ? 'grabbing' : 'grab',
       }}
       onMouseDown={handleMouseDown}
     >
       <div className="box-content">
         <div className="box-header">
           <span>基准框 (拖拽移动)</span>
-          <button className="dock-btn" onClick={handleDockClick}>点击吸附</button>
+          <button className="dock-btn" onClick={handleDockClick}>
+            点击吸附
+          </button>
         </div>
-        
+
         <div className="control-item width-input">
           <label>宽度:</label>
-          <input 
-            type="number" 
-            value={tempWidth} 
-            onChange={(e) => setTempWidth(e.target.value)}
+          <input
+            type="number"
+            value={tempWidth}
+            onChange={e => setTempWidth(e.target.value)}
             onKeyDown={handleKeyDown}
-            onMouseDown={(e) => e.stopPropagation()}
+            onMouseDown={e => e.stopPropagation()}
             placeholder="按回车生效"
           />
           <span>px</span>
@@ -137,11 +142,11 @@ export const ReferenceBox = ({
 
         <div className="control-item checkbox-row">
           <label title="开启时：基准框包含机器人的天线宽度；关闭时：机器人头皮与基准框对齐，天线突出在外">
-            <input 
-              type="checkbox" 
-              checked={includeAntenna} 
-              onChange={(e) => onIncludeAntennaChange(e.target.checked)}
-              onMouseDown={(e) => e.stopPropagation()}
+            <input
+              type="checkbox"
+              checked={includeAntenna}
+              onChange={e => onIncludeAntennaChange(e.target.checked)}
+              onMouseDown={e => e.stopPropagation()}
             />
             包含天线宽度
           </label>
