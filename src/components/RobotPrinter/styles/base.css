@@ -1,0 +1,97 @@
+/* ========================================
+   主容器与基础布局样式
+   ======================================== */
+
+.robot-printer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 140px;
+  padding-right: 20px;
+  perspective: 400px;
+  z-index: var(--rp-z-container, 101);
+}
+
+/* 可拖拽模式 */
+.robot-printer.draggable {
+  padding: 0;
+  height: auto;
+  user-select: none;
+}
+
+/* ========================================
+   提示文字
+   ======================================== */
+
+.hint {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--rp-font-size-sm, 12px);
+  color: var(--rp-color-text-hint, #a0aec0);
+  white-space: nowrap;
+  opacity: 0.7;
+  pointer-events: none;
+  letter-spacing: 0.5px;
+  z-index: var(--rp-z-hint, 5);
+}
+
+.robot-printer.draggable .hint {
+  bottom: -35px;
+}
+
+/* ========================================
+   底部信息栏
+   ======================================== */
+
+.info-bar {
+  position: absolute;
+  top: calc(50% + 40px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--rp-font-size-sm, 12px);
+  color: var(--rp-color-text-hint, #a0aec0);
+  opacity: 0;
+  animation: infoBarFadeIn 0.3s ease-out forwards;
+  animation-delay: var(--paper-duration, 600ms);
+  z-index: var(--rp-z-action-menu, 14);
+}
+
+/* ========================================
+   位置适配
+   ======================================== */
+
+/* InfoBar: 默认在纸条下方，当 ResultPanel 在底部时翻转到上方 */
+.info-bar.placement-bottom {
+  top: auto;
+  bottom: calc(50% + 40px);
+}
+
+/* Hint: 默认在机器人下方，当 ResultPanel 在底部时翻转到上方 */
+.hint.placement-bottom {
+  bottom: auto;
+  top: -5px;
+}
+
+.robot-printer.draggable .hint.placement-bottom {
+  bottom: auto;
+  top: -35px;
+}
+
+/* ========================================
+   反馈动画
+   ======================================== */
+
+.robot-printer.shake-animation {
+  animation: shake 0.4s ease-in-out;
+}
+
+.robot-printer.glass-mode.shake-animation .ai-island-backdrop {
+  animation: glow-glass 0.4s ease-in-out;
+}
+
+.robot-printer.glass-mode.shake-animation .ai-island-backdrop.dark {
+  animation: glow-glass-dark 0.4s ease-in-out;
+}

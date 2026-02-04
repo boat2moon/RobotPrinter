@@ -1,0 +1,156 @@
+/* ========================================
+   动作按钮菜单样式
+   ======================================== */
+
+.action-menu {
+  position: absolute;
+  bottom: calc(50% + 35px);
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  z-index: var(--rp-z-action-menu, 14);
+  opacity: 0;
+  animation: actionFadeIn 0.3s ease-out forwards;
+  animation-delay: var(--paper-duration, 600ms);
+}
+
+.action-btn-wrapper {
+  position: relative;
+}
+
+.action-btn {
+  padding: 6px 14px;
+  font-size: var(--rp-font-size-md, 13px);
+  font-weight: 500;
+  color: var(--rp-color-text-secondary, #5c5c5c);
+  background: linear-gradient(145deg, var(--rp-color-bg-cream, #f8f6f0) 0%, #ebe8e0 100%);
+  border: 1px solid var(--rp-color-border, rgba(0, 0, 0, 0.1));
+  border-radius: var(--rp-radius-md, 6px);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all var(--rp-duration-normal) ease;
+}
+
+.action-btn.has-submenu {
+  padding-right: var(--rp-space-sm, 8px);
+}
+
+.submenu-indicator {
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.8;
+}
+
+.action-btn:hover:not(:disabled) {
+  background: linear-gradient(145deg, #fff 0%, #f0ede5 100%);
+  color: #3c3c3c;
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+.action-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   二级子菜单
+   ======================================== */
+
+.submenu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--rp-space-xs, 4px);
+  padding: 6px;
+  background: linear-gradient(145deg, #fff 0%, var(--rp-color-bg-cream, #f8f6f0) 100%);
+  border: 1px solid var(--rp-color-border, rgba(0, 0, 0, 0.1));
+  border-radius: var(--rp-space-sm, 8px);
+  box-shadow: var(--rp-shadow-lg);
+  z-index: var(--rp-z-submenu, 20);
+  animation: submenuFadeIn 0.15s ease-out;
+}
+
+/* 透明桥接区域 */
+.submenu::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: transparent;
+}
+
+.submenu-btn {
+  position: relative;
+  padding: 6px var(--rp-space-lg, 16px);
+  font-size: var(--rp-font-size-sm, 12px);
+  font-weight: 500;
+  color: var(--rp-color-text-secondary, #5c5c5c);
+  background: transparent;
+  border: none;
+  border-radius: var(--rp-radius-sm, 4px);
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: left;
+  transition: all var(--rp-duration-fast) ease;
+}
+
+.submenu-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05);
+  color: #3c3c3c;
+}
+
+.submenu-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   按钮功能提示气泡
+   ======================================== */
+
+.action-tip {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(50, 50, 50, 0.9);
+  color: #fff;
+  padding: var(--rp-space-xs, 4px) var(--rp-space-sm, 8px);
+  border-radius: var(--rp-radius-sm, 4px);
+  font-size: var(--rp-font-size-sm, 12px);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: var(--rp-z-tooltip, 100);
+  animation: tipFadeIn 0.2s ease-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.action-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px;
+  border-style: solid;
+  border-color: rgba(50, 50, 50, 0.9) transparent transparent transparent;
+}

@@ -1,0 +1,143 @@
+/* ========================================
+   结果面板样式
+   ======================================== */
+
+.result-panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(145deg, #fff 0%, var(--rp-color-bg-cream, #f8f6f0) 100%);
+  border: 1px solid var(--rp-color-border, rgba(0, 0, 0, 0.1));
+  border-radius: var(--rp-radius-lg, 10px);
+  box-shadow: var(--rp-shadow-xl);
+  z-index: var(--rp-z-result-panel, 15);
+  opacity: 0;
+  animation: resultPanelFadeIn 0.3s ease-out forwards;
+  animation-delay: var(--paper-duration, 600ms);
+}
+
+.result-panel-close {
+  position: absolute;
+  top: var(--rp-space-sm, 8px);
+  right: var(--rp-space-sm, 8px);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--rp-font-size-sm, 12px);
+  color: var(--rp-color-text-muted, #999);
+  background: transparent;
+  border: none;
+  border-radius: var(--rp-radius-full);
+  cursor: pointer;
+  transition: all var(--rp-duration-fast) ease;
+}
+
+.result-panel-close:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #666;
+}
+
+.result-panel-content {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--rp-space-lg, 16px) var(--rp-space-xl, 20px);
+  padding-right: 36px;
+}
+
+.result-panel-loading {
+  text-align: center;
+  color: var(--rp-color-text-muted, #999);
+  font-size: var(--rp-font-size-md, 13px);
+}
+
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s infinite;
+}
+
+.result-panel-line {
+  margin: 0 0 var(--rp-space-sm, 8px) 0;
+  font-size: var(--rp-font-size-md, 13px);
+  line-height: 1.6;
+  color: #444;
+}
+
+.result-panel-line:last-child {
+  margin-bottom: 0;
+}
+
+.typing-cursor {
+  display: inline-block;
+  color: #666;
+  animation: blink 0.8s infinite;
+}
+
+.result-panel-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--rp-space-md, 12px);
+  padding: var(--rp-space-md, 12px) var(--rp-space-lg, 16px);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.result-panel-btn {
+  padding: 6px 14px;
+  font-size: var(--rp-font-size-sm, 12px);
+  font-weight: 500;
+  color: var(--rp-color-text-secondary, #5c5c5c);
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: var(--rp-radius-md, 6px);
+  cursor: pointer;
+  transition: all var(--rp-duration-fast) ease;
+}
+
+.result-panel-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #3c3c3c;
+}
+
+.result-panel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Glass Mode 下的结果面板 */
+.robot-printer.glass-mode .result-panel {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  max-height: 320px;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-line {
+  color: #e0e0e0;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-btn {
+  color: #ccc;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-close {
+  color: #aaa;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.robot-printer.glass-mode .result-panel.dark .result-panel-actions {
+  border-top-color: rgba(255, 255, 255, 0.15);
+}

@@ -1,6 +1,6 @@
 interface AntennaProps {
   /** 小球颜色，单色或渐变色数组 */
-  ballColor?: string | string[];
+  ballColor?: string | readonly string[];
   /** 是否处于加载状态（呼吸灯效果） */
   loading?: boolean;
   /** 点击小球回调（用于终止请求） */
@@ -12,18 +12,21 @@ interface AntennaProps {
  * 加载状态时小球放大显示停止图标，可点击终止
  * 注意：天线区域的点击始终被拦截，不会触发机器人转动
  */
-export function Antenna({ 
+export function Antenna({
   ballColor = ['#ff6b6b', '#e74c3c', '#c0392b'],
   loading = false,
   onBallClick,
 }: AntennaProps) {
-  // 加载状态时使用绿色，否则使用传入的颜色
-  const defaultBallBackground = Array.isArray(ballColor)
-    ? `radial-gradient(circle at 30% 30%, ${ballColor.join(', ')})`
-    : ballColor;
-  
+  // 计算默认背景色
+  const getDefaultBackground = (): string => {
+    if (typeof ballColor === 'string') {
+      return ballColor;
+    }
+    return `radial-gradient(circle at 30% 30%, ${ballColor.join(', ')})`;
+  };
+
   const loadingBallBackground = 'radial-gradient(circle at 30% 30%, #6dce6d, #4caf50, #388e3c)';
-  const ballBackground = loading ? loadingBallBackground : defaultBallBackground;
+  const ballBackground = loading ? loadingBallBackground : getDefaultBackground();
 
   // 天线区域始终阻止事件冒泡（包括点击和按下），避免触发机器人转动
   const handleAntennaEvent = (e: React.MouseEvent) => {
@@ -39,13 +42,9 @@ export function Antenna({
   };
 
   return (
-    <div 
-      className="antenna" 
-      onClick={handleAntennaEvent} 
-      onMouseDown={handleAntennaEvent}
-    >
+    <div className="antenna" onClick={handleAntennaEvent} onMouseDown={handleAntennaEvent}>
       <div className="antenna-stem" />
-      <div 
+      <div
         className={`antenna-ball ${loading ? 'loading' : ''}`}
         style={{ background: ballBackground }}
         onClick={handleBallClick}

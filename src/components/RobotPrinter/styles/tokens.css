@@ -1,0 +1,169 @@
+/* ========================================
+   RobotPrinter Design Tokens
+   CSS 变量系统 - 集中管理设计标记
+   ======================================== */
+
+:root {
+  /* ========================================
+     颜色系统
+     ======================================== */
+
+  /* 主要颜色 */
+  --rp-color-primary: #00ffcc;
+  --rp-color-primary-dark: #00cc99;
+  --rp-color-primary-light: #66ffdd;
+
+  /* 警告/错误颜色 */
+  --rp-color-warning: #ffcc00;
+  --rp-color-error: #e74c3c;
+  --rp-color-success: #4caf50;
+
+  /* 中性色 */
+  --rp-color-text: #2c3e50;
+  --rp-color-text-secondary: #5c5c5c;
+  --rp-color-text-muted: #999;
+  --rp-color-text-hint: #a0aec0;
+
+  /* 背景色 */
+  --rp-color-bg-paper: #fdfdfd;
+  --rp-color-bg-cream: #f8f6f0;
+  --rp-color-bg-head: #ebe4d4;
+  --rp-color-bg-screen: #1a1a1a;
+
+  /* 边框色 */
+  --rp-color-border: rgba(0, 0, 0, 0.1);
+  --rp-color-border-dark: rgba(0, 0, 0, 0.18);
+
+  /* ========================================
+     Glass Mode 颜色 - Light
+     ======================================== */
+  --rp-glass-bg: linear-gradient(
+    145deg,
+    rgba(230, 240, 255, 0.55) 0%,
+    rgba(240, 245, 255, 0.45) 40%,
+    rgba(235, 242, 255, 0.5) 100%
+  );
+  --rp-glass-border: rgba(180, 200, 230, 0.5);
+  --rp-glass-shadow:
+    0 4px 24px rgba(100, 130, 180, 0.12), 0 12px 48px rgba(80, 110, 160, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 2px 2px 8px rgba(255, 255, 255, 0.4),
+    inset 0 0 40px rgba(200, 220, 255, 0.15);
+
+  /* Glass Mode 颜色 - Dark */
+  --rp-glass-bg-dark: linear-gradient(
+    135deg,
+    rgba(40, 35, 28, 0.65) 0%,
+    rgba(35, 32, 26, 0.55) 50%,
+    rgba(45, 40, 32, 0.6) 100%
+  );
+  --rp-glass-border-dark: rgba(255, 240, 200, 0.12);
+  --rp-glass-shadow-dark:
+    0 0 60px rgba(255, 220, 150, 0.05), 0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 245, 220, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    inset 0 0 30px rgba(255, 230, 180, 0.03);
+
+  /* ========================================
+     间距系统
+     ======================================== */
+  --rp-space-xs: 4px;
+  --rp-space-sm: 8px;
+  --rp-space-md: 12px;
+  --rp-space-lg: 16px;
+  --rp-space-xl: 20px;
+  --rp-space-2xl: 24px;
+
+  /* ========================================
+     边框半径
+     ======================================== */
+  --rp-radius-sm: 4px;
+  --rp-radius-md: 6px;
+  --rp-radius-lg: 10px;
+  --rp-radius-xl: 12px;
+  --rp-radius-2xl: 24px;
+  --rp-radius-full: 50%;
+
+  /* ========================================
+     字体系统
+     ======================================== */
+  --rp-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --rp-font-family-mono: 'SF Mono', 'Consolas', monospace;
+  --rp-font-family-paper: 'KaiTi', 'STKaiti', '楷体', 'Georgia', serif;
+
+  --rp-font-size-xs: 10px;
+  --rp-font-size-sm: 12px;
+  --rp-font-size-md: 13px;
+  --rp-font-size-lg: 18px;
+  --rp-font-size-xl: 24px;
+
+  /* ========================================
+     动画系统
+     ======================================== */
+
+  /* 持续时间 */
+  --rp-duration-fast: 150ms;
+  --rp-duration-normal: 200ms;
+  --rp-duration-slow: 300ms;
+  --rp-duration-rotate: 400ms;
+  --rp-duration-paper: 600ms;
+
+  /* 缓动函数 */
+  --rp-ease-default: ease;
+  --rp-ease-out: ease-out;
+  --rp-ease-in-out: ease-in-out;
+  --rp-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --rp-ease-smooth: cubic-bezier(0.34, 1.2, 0.64, 1);
+  --rp-ease-decelerate: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ========================================
+     尺寸系统
+     ======================================== */
+
+  /* Robot Head */
+  --rp-head-width: 100px;
+  --rp-head-height: 85px;
+  --rp-ear-width: 12px;
+  --rp-ear-height: 24px;
+  --rp-antenna-ball-size: 14px;
+  --rp-antenna-ball-loading-size: 27px;
+  --rp-antenna-stem-height: 20px;
+
+  /* Eyes */
+  --rp-eye-width: 14px;
+  --rp-eye-height: 18px;
+  --rp-pupil-width: 6px;
+  --rp-pupil-height: 8px;
+
+  /* Paper */
+  --rp-paper-height: 60px;
+  --rp-paper-default-width: 500px;
+  --rp-paper-hole-size: 8px;
+
+  /* Screen */
+  --rp-screen-width: 75px;
+  --rp-screen-height: 50px;
+
+  /* ========================================
+     阴影系统
+     ======================================== */
+  --rp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --rp-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.12);
+  --rp-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --rp-shadow-xl: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* 内阴影 */
+  --rp-shadow-inset-light: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --rp-shadow-inset-dark: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+
+  /* ========================================
+     Z-Index 层级
+     ======================================== */
+  --rp-z-base: 0;
+  --rp-z-hint: 5;
+  --rp-z-head: 10;
+  --rp-z-action-menu: 14;
+  --rp-z-paper: 15;
+  --rp-z-result-panel: 15;
+  --rp-z-submenu: 20;
+  --rp-z-tooltip: 100;
+  --rp-z-container: 101;
+}

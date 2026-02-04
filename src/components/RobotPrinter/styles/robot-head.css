@@ -1,0 +1,279 @@
+/* ========================================
+   机器人头部样式
+   ======================================== */
+
+/* 外层 wrapper - 不旋转，持有基于固定光源的阴影 */
+.robot-head-wrapper {
+  position: relative;
+  cursor: pointer;
+  z-index: var(--rp-z-head, 10);
+  filter: drop-shadow(var(--shadow-x, 5px) var(--shadow-y, 5px) 8px rgba(0, 0, 0, 0.2));
+  transition: filter var(--rotate-duration, 400ms) ease;
+}
+
+.robot-head-wrapper:hover {
+  filter: drop-shadow(var(--shadow-x, 5px) var(--shadow-y, 5px) 8px rgba(0, 0, 0, 0.2))
+    brightness(1.02);
+}
+
+/* 可拖拽时鼠标样式 */
+.robot-printer.draggable .robot-head-wrapper {
+  cursor: grab;
+}
+
+.robot-printer.draggable .robot-head-wrapper:active {
+  cursor: grabbing;
+}
+
+/* 内层头部 - 可旋转，带3D倾斜 */
+.robot-head {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: translateZ(20px) rotateX(var(--tilt-x, 12deg)) rotateY(var(--tilt-y, -12deg))
+    rotateZ(0deg);
+  transition: transform var(--rotate-duration, 400ms) cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+/* 头壳 */
+.head-body {
+  position: relative;
+  width: var(--rp-head-width, 100px);
+  height: var(--rp-head-height, 85px);
+  background: linear-gradient(var(--grad-angle, 145deg), #ebe4d4 0%, #e0d8c0 50%, #d5cdb8 100%);
+  border-radius: var(--rp-radius-xl, 12px);
+  border: 1px solid var(--rp-color-border-dark, rgba(0, 0, 0, 0.18));
+  box-shadow:
+    inset var(--shadow-inset-x, -2px) var(--shadow-inset-y, -2px) 6px rgba(0, 0, 0, 0.08),
+    inset var(--highlight-x, 2px) var(--highlight-y, 2px) 6px rgba(255, 255, 255, 0.6);
+}
+
+/* ========================================
+   天线
+   ======================================== */
+
+.antenna {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+.antenna-stem {
+  width: 4px;
+  height: var(--rp-antenna-stem-height, 20px);
+  background: linear-gradient(to right, #444 0%, #666 50%, #444 100%);
+  border-radius: 1px;
+}
+
+.antenna-ball {
+  width: var(--rp-antenna-ball-size, 14px);
+  height: var(--rp-antenna-ball-size, 14px);
+  border-radius: var(--rp-radius-full);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.2),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3);
+  transition:
+    box-shadow 0.3s ease,
+    background 0.3s ease,
+    width 0.3s ease,
+    height 0.3s ease,
+    transform 0.3s ease,
+    border 0.3s ease;
+}
+
+.antenna-ball.loading {
+  cursor: pointer;
+  width: var(--rp-antenna-ball-loading-size, 27px);
+  height: var(--rp-antenna-ball-loading-size, 27px);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: antennaBreathe 1.2s ease-in-out infinite;
+}
+
+.antenna-ball.loading:hover {
+  transform: scale(1.15);
+}
+
+.antenna-ball .stop-icon {
+  width: 9px;
+  height: 9px;
+  border: 1.9px solid rgba(0, 0, 0, 0.7);
+  border-radius: 1px;
+  background: transparent;
+}
+
+.antenna-hint {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--rp-font-size-xs, 10px);
+  color: #666;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+
+/* ========================================
+   耳朵
+   ======================================== */
+
+.ear {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--rp-ear-width, 12px);
+  height: var(--rp-ear-height, 24px);
+  background: linear-gradient(to bottom, #666 0%, #555 50%, #444 100%);
+  border-radius: 6px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.ear-left {
+  left: -10px;
+}
+
+.ear-right {
+  right: -10px;
+}
+
+/* ========================================
+   脸部屏幕
+   ======================================== */
+
+.face-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -45%);
+  width: var(--rp-screen-width, 75px);
+  height: var(--rp-screen-height, 50px);
+  background: linear-gradient(135deg, #1a1a1a 0%, #111 50%, #0a0a0a 100%);
+  border-radius: var(--rp-radius-md, 6px);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+/* ========================================
+   眼睛
+   ======================================== */
+
+.eyes-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.eye {
+  position: relative;
+  width: var(--rp-eye-width, 14px);
+  height: var(--rp-eye-height, 18px);
+  background: var(--rp-color-primary, #00ffcc);
+  border-radius: 3px;
+  box-shadow:
+    0 0 8px var(--rp-color-primary, #00ffcc),
+    0 0 16px rgba(0, 255, 204, 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.5);
+  transition: transform 0.15s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pupil {
+  width: var(--rp-pupil-width, 6px);
+  height: var(--rp-pupil-height, 8px);
+  background: radial-gradient(ellipse at center, #003333 0%, #006666 60%, transparent 100%);
+  border-radius: 2px;
+  transition: transform 0.08s ease-out;
+}
+
+/* 眨眼 */
+.eye.blink {
+  transform: scaleY(0.1);
+}
+
+.eye.blink .pupil {
+  opacity: 0;
+}
+
+/* 加载模式 */
+.eye.loading {
+  animation: eyePulse 1.2s ease-in-out infinite;
+}
+
+.eye.eye-right.loading {
+  animation-delay: 0.4s;
+}
+
+/* 睡眠模式 */
+.eye.sleeping {
+  transform: scaleY(0.1) scaleX(1.3);
+  animation: sleepingGlow 3s ease-in-out infinite;
+}
+
+.eye.sleeping .pupil {
+  opacity: 0;
+}
+
+/* 倒计时模式 */
+.eyes-container.countdown-mode {
+  position: relative;
+}
+
+.eye.hidden-eye {
+  opacity: 0;
+}
+
+.eyes-container.countdown-mode .countdown-digit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: var(--rp-font-size-xl, 24px);
+  font-weight: 700;
+  font-family: var(--rp-font-family-mono);
+  color: var(--rp-color-warning, #ffcc00);
+  text-shadow: 0 0 8px rgba(255, 204, 0, 0.8);
+  animation: countdownPulse 1s ease-in-out infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ========================================
+   嘴巴
+   ======================================== */
+
+.mouth {
+  width: 12px;
+  height: 4px;
+  background: #444;
+  border-radius: 2px;
+  transition:
+    width 0.2s ease,
+    height 0.2s ease,
+    border-radius 0.2s ease,
+    background 0.2s ease;
+}
+
+.mouth.open {
+  width: 65px;
+  height: 10px;
+  border-radius: 3px;
+  background: #444;
+}

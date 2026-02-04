@@ -1,0 +1,303 @@
+/* ========================================
+   纸条样式
+   ======================================== */
+
+.paper {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: var(--rp-paper-height, 60px);
+
+  background-color: var(--rp-color-bg-paper, #fdfdfd);
+  background-image:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, transparent 12%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.06) 0%, transparent 10%);
+
+  border-radius: var(--rp-radius-sm, 4px);
+
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.06);
+
+  border-top: 1px solid rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+
+  overflow: visible;
+  z-index: var(--rp-z-paper, 15);
+
+  width: 0;
+  opacity: 1;
+  transition: width var(--paper-duration, 600ms) cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 斜切边边框线 - 左侧 */
+.paper.direction-left::after {
+  content: '';
+  position: absolute;
+  left: 14.5px;
+  top: -2px;
+  width: 1.5px;
+  height: 66px;
+  background: rgba(0, 0, 0, 0.25);
+  transform-origin: top left;
+  transform: rotate(14deg);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 斜切边边框线 - 右侧 */
+.paper.direction-right::after {
+  content: '';
+  position: absolute;
+  right: 14.5px;
+  top: -2px;
+  width: 1.5px;
+  height: 66px;
+  background: rgba(0, 0, 0, 0.25);
+  transform-origin: top right;
+  transform: rotate(-14deg);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 内部高光渐变 - 左侧 */
+.paper.direction-left::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  background: linear-gradient(104deg, rgba(0, 0, 0, 0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 内部高光渐变 - 右侧 */
+.paper.direction-right::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  background: linear-gradient(-104deg, rgba(0, 0, 0, 0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 向左展开 - 左边斜边 */
+.paper.direction-left {
+  transform-origin: right center;
+  clip-path: polygon(15px 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+/* 向右展开 - 右边斜边 */
+.paper.direction-right {
+  transform-origin: left center;
+  clip-path: polygon(0% 0%, calc(100% - 15px) 0%, 100% 100%, 0% 100%);
+}
+
+.paper.expanded {
+  width: var(--paper-width, 500px);
+}
+
+.paper.collapsed {
+  width: 0;
+  transition: width calc(var(--paper-duration, 600ms) * 0.8) cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  pointer-events: none;
+}
+
+.paper.collapsed::before,
+.paper.collapsed::after,
+.paper.collapsed .paper-holes,
+.paper.collapsed .paper-lines,
+.paper.collapsed .paper-content {
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+/* ========================================
+   纸条内容
+   ======================================== */
+
+.paper-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--rp-space-2xl, 24px);
+}
+
+.paper-input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: var(--rp-font-size-lg, 18px);
+  color: var(--rp-color-text, #2c3e50);
+  font-family: var(--rp-font-family-paper);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+  margin-left: 10px;
+  padding-right: 32px;
+}
+
+.paper-input::placeholder {
+  color: rgba(100, 100, 100, 0.4);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.paper-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 回车图标 */
+.enter-icon {
+  position: absolute;
+  right: 16px;
+  width: 20px;
+  height: 20px;
+  color: var(--rp-color-text-muted, #999);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.enter-icon.loading {
+  cursor: not-allowed;
+}
+
+.enter-icon:not(.loading):hover {
+  opacity: 1;
+  color: #666;
+  transform: scale(1.1);
+}
+
+.enter-icon:not(.loading):active {
+  transform: scale(0.95);
+}
+
+.enter-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* 频率限制倒计时 */
+.paper-delay {
+  font-size: var(--rp-font-size-sm, 12px);
+  color: var(--rp-color-text-muted, #999);
+  white-space: nowrap;
+  margin-right: var(--rp-space-sm, 8px);
+}
+
+/* 加载指示器 */
+.paper-loading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: var(--rp-space-sm, 8px);
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #666;
+  border-radius: var(--rp-radius-full);
+  animation: spin 0.8s linear infinite;
+}
+
+/* 中止按钮 */
+.abort-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--rp-font-size-xs, 10px);
+  color: var(--rp-color-text-muted, #999);
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: var(--rp-radius-sm, 4px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.abort-btn:hover {
+  background: rgba(255, 100, 100, 0.15);
+  color: var(--rp-color-error, #e74c3c);
+}
+
+/* ========================================
+   纸条装饰
+   ======================================== */
+
+.paper-lines {
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.paper-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(200, 200, 200, 0.4);
+}
+
+.paper-line:nth-child(1) {
+  top: 33%;
+}
+
+.paper-line:nth-child(2) {
+  top: 66%;
+}
+
+/* 打孔装饰 */
+.paper-holes {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.paper-holes.left {
+  left: 10px;
+  transform: translateY(-50%) rotate(14deg);
+}
+
+.paper-holes.right {
+  right: 10px;
+  transform: translateY(-50%) rotate(-14deg);
+}
+
+.paper-hole {
+  width: var(--rp-paper-hole-size, 8px);
+  height: var(--rp-paper-hole-size, 8px);
+  border-radius: var(--rp-radius-full);
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 50%, #d0d0d0 100%);
+  box-shadow:
+    inset 1px 1px 2px rgba(0, 0, 0, 0.2),
+    inset -1px -1px 1px rgba(255, 255, 255, 0.8);
+}
