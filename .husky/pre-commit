@@ -1,1 +1,5 @@
+# 运行 lint-staged 处理暂存文件
 npx lint-staged
+
+# 全量格式检查，防止遗漏的文件影响 CI
+npm run format:check
