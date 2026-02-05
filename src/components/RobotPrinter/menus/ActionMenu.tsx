@@ -17,6 +17,8 @@ interface ActionMenuProps {
   offset: number;
   /** 纸条宽度 */
   paperWidth: number;
+  /** 内置总结操作回调 */
+  onSummarize?: () => void;
 }
 
 /**
@@ -30,6 +32,7 @@ export const ActionMenu = memo(function ActionMenu({
   direction,
   offset,
   paperWidth,
+  onSummarize,
 }: ActionMenuProps) {
   if (!isVisible || actions.length === 0) {
     return null;
@@ -48,7 +51,12 @@ export const ActionMenu = memo(function ActionMenu({
       onClick={e => e.stopPropagation()}
     >
       {actions.map((action, index) => (
-        <ActionButton key={index} action={action} inputValue={inputValue} />
+        <ActionButton
+          key={index}
+          action={action}
+          inputValue={inputValue}
+          onSummarize={onSummarize}
+        />
       ))}
     </div>
   );

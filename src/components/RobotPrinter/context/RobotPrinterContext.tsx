@@ -81,6 +81,8 @@ export interface RobotPrinterContextValue {
   submit: () => void;
   /** 中止 */
   abort: () => void;
+  /** 触发总结，返回需要总结的内容 */
+  summarize: () => string | undefined;
 }
 
 // ============ 创建 Context ============
@@ -116,6 +118,8 @@ export interface RobotPrinterProviderProps {
   onPositionChange?: (pos: Position) => void;
   onSubmit?: (value: string) => void;
   onAbort?: () => void;
+  /** 总结回调，返回需要总结的内容 */
+  onSummarize?: (inputValue: string) => string | undefined;
 }
 
 // ============ Provider 组件 ============
@@ -141,6 +145,7 @@ export function RobotPrinterProvider({
   onPositionChange,
   onSubmit,
   onAbort,
+  onSummarize,
 }: RobotPrinterProviderProps) {
   // 内部状态
   const [expanded, setExpandedState] = useState(defaultExpanded);
@@ -185,6 +190,10 @@ export function RobotPrinterProvider({
     onAbort?.();
   }, [onAbort]);
 
+  const summarize = useCallback(() => {
+    return onSummarize?.(inputValue);
+  }, [inputValue, onSummarize]);
+
   // Memoize context value
   const contextValue = useMemo<RobotPrinterContextValue>(
     () => ({
@@ -211,6 +220,7 @@ export function RobotPrinterProvider({
       setPosition,
       submit,
       abort,
+      summarize,
     }),
     [
       expanded,
@@ -233,6 +243,7 @@ export function RobotPrinterProvider({
       setPosition,
       submit,
       abort,
+      summarize,
     ]
   );
 

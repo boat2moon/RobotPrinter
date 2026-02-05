@@ -8,6 +8,8 @@ interface ActionButtonProps {
   action: ActionConfig;
   /** 当前输入值 */
   inputValue: string;
+  /** 内置总结操作回调 */
+  onSummarize?: () => void;
 }
 
 /**
@@ -48,7 +50,11 @@ const SubActionButton = memo(function SubActionButton({
  * 单个操作按钮组件
  * 支持悬停展开子菜单，以及无功能时的 toast 提示
  */
-export const ActionButton = memo(function ActionButton({ action, inputValue }: ActionButtonProps) {
+export const ActionButton = memo(function ActionButton({
+  action,
+  inputValue,
+  onSummarize,
+}: ActionButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const hasSubActions = action.subActions && action.subActions.length > 0;
 
@@ -57,6 +63,19 @@ export const ActionButton = memo(function ActionButton({ action, inputValue }: A
       e.stopPropagation();
       // 有子菜单时点击不触发，只悬停展开
       if (!hasSubActions) {
+        // 处理内置操作类型
+        if (action.type === 'summarize') {
+          if (onSummarize) {
+            onSummarize();
+          } else {
+            toast.info('总结功能未配置', {
+              description: '请为 RobotPrinter 组件配置 onSummarize 回调',
+              duration: 3000,
+            });
+          }
+          return;
+        }
+
         if (action.onClick) {
           action.onClick(inputValue);
         } else {
@@ -68,7 +87,7 @@ export const ActionButton = memo(function ActionButton({ action, inputValue }: A
         }
       }
     },
-    [hasSubActions, action, inputValue]
+    [hasSubActions, action, inputValue, onSummarize]
   );
 
   const handleMouseEnter = useCallback(() => setIsHovered(true), []);

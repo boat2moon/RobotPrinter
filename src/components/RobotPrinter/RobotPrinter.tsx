@@ -42,6 +42,7 @@ export function RobotPrinter({
   isDark = false,
   styleMode = 'default',
   highlightTrigger = 0,
+  onSummarize,
 }: RobotPrinterProps) {
   // ============ 开发环境警告 ============
   if (import.meta.env.DEV) {
@@ -332,6 +333,20 @@ export function RobotPrinter({
       onSubmit?.(inputValue);
     }
   }, [inputValue, onSubmit, loading, delay, phase]);
+
+  // 处理总结（内置操作）
+  const handleSummarize = useCallback(() => {
+    // 加载中或倒计时中不可触发
+    if (loading || delay > 0) return;
+
+    // 调用外部回调获取需要总结的内容
+    const content = onSummarize?.(inputValue);
+    // 如果返回了内容，外部应该会更新 resultPanel
+    // 如果没有回调或返回空，ActionButton 会显示提示
+    if (content) {
+      // 内容由外部处理，这里只是触发
+    }
+  }, [inputValue, onSummarize, loading, delay]);
 
   // 空闲睡眠检测
   const resetIdleTimer = useCallback(() => {
@@ -625,6 +640,7 @@ export function RobotPrinter({
         direction={paperDirection}
         offset={paperOffset}
         paperWidth={paperWidth}
+        onSummarize={onSummarize ? handleSummarize : undefined}
       />
 
       {/* 结果面板 - 纸条收起时同时隐藏 */}

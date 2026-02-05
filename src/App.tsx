@@ -43,6 +43,7 @@ function App() {
     visible: false,
     content: '',
     loading: false,
+    source: 'submit' as 'submit' | 'summarize',
   });
 
   const handleSubmit = (value: string) => {
@@ -51,7 +52,7 @@ function App() {
 
     // 模拟请求
     setLoading(true);
-    setResult({ visible: true, content: '', loading: true });
+    setResult({ visible: true, content: '', loading: true, source: 'submit' });
 
     // 模拟流式输出
     let content = '';
@@ -88,6 +89,67 @@ function App() {
     toast.warning('请求已中止');
     setLoading(false);
     setResult(prev => ({ ...prev, loading: false }));
+  };
+
+  // 模拟总结功能
+  // 在实际使用中，这里可以返回 tiptap 编辑器的选中内容等
+  const [summarizeContent] = useState(
+    '这是一段模拟的需要总结的内容。\n在实际应用中，这里会是用户在 tiptap 编辑器中选中的文本，\n或者其他需要 AI 总结的内容。'
+  );
+
+  const handleSummarize = (inputValue: string): string | undefined => {
+    // 这里模拟获取需要总结的内容
+    // 实际场景中可以是：
+    // - tiptap 编辑器的选中文本
+    // - 某个文档的内容
+    // - 其他需要总结的数据
+    const contentToSummarize = summarizeContent;
+
+    if (!contentToSummarize) {
+      toast.warning('没有可总结的内容', {
+        description: '请先选择需要总结的文本',
+      });
+      return undefined;
+    }
+
+    toast.info('正在总结...', {
+      description: `内容长度: ${contentToSummarize.length} 字符`,
+    });
+
+    // 模拟请求
+    setLoading(true);
+    setResult({ visible: true, content: '', loading: true, source: 'summarize' });
+
+    // 模拟流式输出总结结果
+    let content = '';
+    const text = `📝 总结结果\n\n原文要点：\n• 这是一段模拟内容\n• 用于演示总结功能\n• 实际使用时会连接 AI 服务\n\n${inputValue ? `\n💡 附加上下文: "${inputValue}"` : ''}`;
+    let i = 0;
+
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        content += text[i];
+        setResult(prev => ({ ...prev, content }));
+        i++;
+      } else {
+        clearInterval(interval);
+        setLoading(false);
+        setResult(prev => ({ ...prev, loading: false }));
+
+        // 模拟频率限制
+        setDelay(3);
+        const countdown = setInterval(() => {
+          setDelay(prev => {
+            if (prev <= 1) {
+              clearInterval(countdown);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    }, 40);
+
+    return contentToSummarize;
   };
 
   // 执行吸附逻辑（纯函数式，基于传入宽度）
@@ -201,6 +263,7 @@ function App() {
         shadowStrength={1.5}
         placeholder="输入记录..."
         onSubmit={handleSubmit}
+        onSummarize={handleSummarize}
         paperWidth={paperWidth}
         loading={loading}
         onAbort={handleAbort}
@@ -265,10 +328,7 @@ function App() {
           },
           {
             label: '总结',
-            onClick: v =>
-              toast.info(`已触发【总结】`, {
-                description: `针对文本 "${v}" 进行总结。请在此处对接您的 summarization 逻辑。`,
-              }),
+            type: 'summarize', // 使用内置的总结功能类型
           },
           {
             label: '优化',
@@ -283,25 +343,54 @@ function App() {
                 visible: result.visible,
                 content: result.content,
                 loading: result.loading,
-                onClose: () => setResult({ visible: false, content: '', loading: false }),
-                actions: [
-                  {
-                    label: '替换',
-                    onClick: () =>
-                      toast.success('已点击【替换】按钮', {
-                        description:
-                          'ResultPanel 的 actions 可用于对生成结果进行操作，例如替换编辑器选区。',
-                      }),
-                  },
-                  {
-                    label: '插入',
-                    onClick: () =>
-                      toast.success('已点击【插入】按钮', {
-                        description: '此处应实现将 AI 生成的内容插入到编辑器光标处的功能。',
-                      }),
-                  },
-                  { label: '重新生成', onClick: () => handleSubmit('重新生成') },
-                ],
+                source: result.source,
+                onClose: () =>
+                  setResult({ visible: false, content: '', loading: false, source: 'submit' }),
+                actions:
+                  result.source === 'summarize'
+                    ? [
+                        // 总结场景下的操作按钮
+                        {
+                          label: '复制',
+                          onClick: () =>
+                            toast.success('已复制总结内容', {
+                              description: '总结内容已复制到剪贴板',
+                            }),
+                        },
+                        {
+                          label: '插入',
+                          onClick: () =>
+                            toast.success('已点击【插入】按钮', {
+                              description: '此处应实现将总结内容插入到编辑器的功能。',
+                            }),
+                        },
+                        {
+                          label: '重新总结',
+                          onClick: () => {
+                            // 重新触发总结，使用相同的内容
+                            handleSummarize('');
+                          },
+                        },
+                      ]
+                    : [
+                        // 提交场景下的操作按钮
+                        {
+                          label: '替换',
+                          onClick: () =>
+                            toast.success('已点击【替换】按钮', {
+                              description:
+                                'ResultPanel 的 actions 可用于对生成结果进行操作，例如替换编辑器选区。',
+                            }),
+                        },
+                        {
+                          label: '插入',
+                          onClick: () =>
+                            toast.success('已点击【插入】按钮', {
+                              description: '此处应实现将 AI 生成的内容插入到编辑器光标处的功能。',
+                            }),
+                        },
+                        { label: '重新生成', onClick: () => handleSubmit('重新生成') },
+                      ],
               }
             : undefined
         }

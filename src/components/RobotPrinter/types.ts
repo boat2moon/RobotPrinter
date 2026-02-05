@@ -57,6 +57,9 @@ export interface ActionConfig {
 
 // ============ 结果面板配置 ============
 
+/** 结果面板内容来源 */
+export type ResultPanelSource = 'submit' | 'summarize';
+
 /** 结果面板配置 */
 export interface ResultPanelConfig {
   /** 是否可见 */
@@ -73,6 +76,8 @@ export interface ResultPanelConfig {
   onPlacementChange?: (placement: Placement) => void;
   /** 默认位置 */
   defaultPlacement?: Placement;
+  /** 内容来源，用于区分是提交输入还是总结等其他操作 */
+  source?: ResultPanelSource;
 }
 
 // ============ 主组件 Props ============
@@ -146,6 +151,13 @@ export interface RobotPrinterProps {
   onExpandedChange?: (expanded: boolean) => void;
   /** 位置变化时的回调 */
   onPositionChange?: (position: Position) => void;
+  /**
+   * 总结回调
+   * 当点击"总结"按钮时触发，使用者应在此回调中提供需要总结的内容
+   * @param inputValue - 纸条输入框中的当前值（可用于传递额外上下文）
+   * @returns 需要总结的内容，如 tiptap 编辑器中的选中文本等；返回 undefined 或空字符串则不触发总结
+   */
+  onSummarize?: (inputValue: string) => string | undefined;
 }
 
 // ============ 样式相关类型 ============

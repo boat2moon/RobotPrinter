@@ -77,10 +77,11 @@ export type {
   Direction,
   ActionConfig,
   ResultPanelConfig,
+  ResultPanelSource,
   AnimationPhase,
 } from './types';
 
-export type { ActionConfig as ActionConfigType } from './menus';
+export type { ActionConfig as ActionConfigType, BuiltinActionType } from './menus';
 export type { ResultPanelConfig as ResultPanelConfigType } from './ResultPanel';
 
 // ============ Hooks 导出 ============

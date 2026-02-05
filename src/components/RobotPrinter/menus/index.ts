@@ -3,4 +3,4 @@ export { ActionMenu } from './ActionMenu';
 export { ActionButton } from './ActionButton';
 
 // 类型导出
-export type { ActionConfig } from './types';
+export type { ActionConfig, BuiltinActionType } from './types';
