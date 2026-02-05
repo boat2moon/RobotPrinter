@@ -41,10 +41,18 @@ export type AnimationPhase =
 
 // ============ 动作配置 ============
 
+/** 内置操作类型 */
+export type BuiltinActionType = 'summarize';
+
 /** 动作按钮配置 */
 export interface ActionConfig {
   /** 按钮显示文本 */
   label: string;
+  /**
+   * 内置操作类型（可选）
+   * - 'summarize': 总结功能，会调用 onSummarize 回调获取内容并显示在 ResultPanel 中
+   */
+  type?: BuiltinActionType;
   /** 点击回调，参数为当前输入值 */
   onClick?: (value: string) => void;
   /** 是否禁用 */
