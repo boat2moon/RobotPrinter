@@ -12,8 +12,8 @@
   box-shadow: var(--rp-shadow-xl);
   z-index: var(--rp-z-result-panel, 15);
   opacity: 0;
-  animation: resultPanelFadeIn 0.3s ease-out forwards;
-  animation-delay: var(--paper-duration, 600ms);
+  animation: resultPanelFadeIn 0.2s ease-out forwards;
+  animation-delay: 200ms;
 }
 
 .result-panel-close {
@@ -42,8 +42,53 @@
 .result-panel-content {
   max-height: 200px;
   overflow-y: auto;
-  padding: var(--rp-space-lg, 16px) var(--rp-space-xl, 20px);
+  overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  padding: 0 var(--rp-space-xl, 20px) var(--rp-space-lg, 16px);
   padding-right: 36px;
+  margin-top: var(--rp-space-lg, 16px);
+
+  /* Firefox 滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.08) transparent;
+}
+
+/* Webkit 滚动条样式 (Chrome, Safari, Edge) */
+.result-panel-content::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.result-panel-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.result-panel-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+}
+
+.result-panel-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.result-panel-content::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark mode 滚动条 */
+.result-panel.dark .result-panel-content {
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+.result-panel.dark .result-panel-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.result-panel.dark .result-panel-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .result-panel-loading {

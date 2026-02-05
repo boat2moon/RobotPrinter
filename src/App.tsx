@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Toaster, toast } from 'sonner';
 
 import { RobotPrinter, type Position } from './components/RobotPrinter';
@@ -9,6 +9,12 @@ function App() {
   // 模拟加载状态
   const [loading, setLoading] = useState(false);
   const [delay, setDelay] = useState(0);
+
+  // 保存流式输出的定时器引用，用于终止时清除
+  const streamingRef = useRef<{
+    timeout?: ReturnType<typeof setTimeout>;
+    interval?: ReturnType<typeof setInterval>;
+  }>({});
 
   // 外部控制展开状态（演示受控模式）
   const [expanded, setExpanded] = useState(false);
@@ -56,37 +62,52 @@ function App() {
 
     // 模拟流式输出
     let content = '';
-    const text = `您输入了: "${value}"\n\n这是一个模拟的 AI 响应内容。\n机器人正在处理您的请求...`;
+    const text = `您输入了: "${value}"\n\n这是一个模拟的 AI 响应内容。\n机器人正在处理您的请求...\n\nℹ️ “AI 生成中” 加载时长为模拟，实际由调用方控制。`;
     let i = 0;
 
-    const interval = setInterval(() => {
-      if (i < text.length) {
-        content += text[i];
-        setResult(prev => ({ ...prev, content }));
-        i++;
-      } else {
-        clearInterval(interval);
-        setLoading(false);
-        setResult(prev => ({ ...prev, loading: false }));
+    // 初始延迟，让 "AI 生成中......" 提示显示一段时间
+    streamingRef.current.timeout = setTimeout(() => {
+      streamingRef.current.interval = setInterval(() => {
+        if (i < text.length) {
+          content += text[i];
+          setResult(prev => ({ ...prev, content }));
+          i++;
+        } else {
+          clearInterval(streamingRef.current.interval);
+          streamingRef.current = {};
+          setLoading(false);
+          setResult(prev => ({ ...prev, loading: false }));
 
-        // 模拟频率限制
-        setDelay(5);
-        const countdown = setInterval(() => {
-          setDelay(prev => {
-            if (prev <= 1) {
-              clearInterval(countdown);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      }
-    }, 50);
+          // 模拟频率限制
+          setDelay(5);
+          const countdown = setInterval(() => {
+            setDelay(prev => {
+              if (prev <= 1) {
+                clearInterval(countdown);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+      }, 50);
+    }, 1500); // 初始等待 1.5 秒
   };
 
   const handleAbort = () => {
-    // console.log('中止请求');
-    toast.warning('请求已中止');
+    // 清除流式输出的定时器
+    if (streamingRef.current.timeout) {
+      clearTimeout(streamingRef.current.timeout);
+    }
+    if (streamingRef.current.interval) {
+      clearInterval(streamingRef.current.interval);
+    }
+    streamingRef.current = {};
+
+    // 只有在加载中时才显示终止提示
+    if (loading) {
+      toast.warning('请求已中止');
+    }
     setLoading(false);
     setResult(prev => ({ ...prev, loading: false }));
   };
@@ -122,32 +143,36 @@ function App() {
 
     // 模拟流式输出总结结果
     let content = '';
-    const text = `📝 总结结果\n\n原文要点：\n• 这是一段模拟内容\n• 用于演示总结功能\n• 实际使用时会连接 AI 服务\n\n${inputValue ? `\n💡 附加上下文: "${inputValue}"` : ''}`;
+    const text = `📝 总结结果\n\n原文要点：\n• 这是一段模拟内容\n• 用于演示总结功能\n• 实际使用时会连接 AI 服务\n\nℹ️ “AI 生成中” 加载时长为模拟，实际由调用方控制。${inputValue ? `\n\n💡 附加上下文: "${inputValue}"` : ''}`;
     let i = 0;
 
-    const interval = setInterval(() => {
-      if (i < text.length) {
-        content += text[i];
-        setResult(prev => ({ ...prev, content }));
-        i++;
-      } else {
-        clearInterval(interval);
-        setLoading(false);
-        setResult(prev => ({ ...prev, loading: false }));
+    // 初始延迟，让 "AI 生成中......" 提示显示一段时间
+    streamingRef.current.timeout = setTimeout(() => {
+      streamingRef.current.interval = setInterval(() => {
+        if (i < text.length) {
+          content += text[i];
+          setResult(prev => ({ ...prev, content }));
+          i++;
+        } else {
+          clearInterval(streamingRef.current.interval);
+          streamingRef.current = {};
+          setLoading(false);
+          setResult(prev => ({ ...prev, loading: false }));
 
-        // 模拟频率限制
-        setDelay(3);
-        const countdown = setInterval(() => {
-          setDelay(prev => {
-            if (prev <= 1) {
-              clearInterval(countdown);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      }
-    }, 40);
+          // 模拟频率限制
+          setDelay(3);
+          const countdown = setInterval(() => {
+            setDelay(prev => {
+              if (prev <= 1) {
+                clearInterval(countdown);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+      }, 40);
+    }, 1500); // 初始等待 1.5 秒
 
     return contentToSummarize;
   };
@@ -344,8 +369,10 @@ function App() {
                 content: result.content,
                 loading: result.loading,
                 source: result.source,
-                onClose: () =>
-                  setResult({ visible: false, content: '', loading: false, source: 'submit' }),
+                onClose: () => {
+                  handleAbort(); // 关闭时也触发终止
+                  setResult({ visible: false, content: '', loading: false, source: 'submit' });
+                },
                 actions:
                   result.source === 'summarize'
                     ? [

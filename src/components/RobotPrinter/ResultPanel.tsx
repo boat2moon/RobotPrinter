@@ -34,8 +34,8 @@ interface ResultPanelProps extends ResultPanelConfig {
 const GLASS_GAP_TOP = 35;
 const GLASS_GAP_BOTTOM = 40;
 // 水平偏移
-const GLASS_OFFSET_LEFT = 30; // 机器人在右 (direction=left)
-const GLASS_OFFSET_RIGHT = 30; // 机器人在左 (direction=right)
+const GLASS_OFFSET_LEFT = -70; // 机器人在右 (direction=left)
+const GLASS_OFFSET_RIGHT = -70; // 机器人在左 (direction=right)
 
 // --- Default 模式参数 ---
 // 垂直间距 (距离中心线)
@@ -66,8 +66,16 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
   ref
 ) {
   const internalRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const panelRef = (ref as React.RefObject<HTMLDivElement | null>) || internalRef;
   const [placement, setPlacement] = useState<'top' | 'bottom'>(defaultPlacement);
+
+  // 内容更新时自动滚动到底部
+  useEffect(() => {
+    if (contentRef.current && content) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    }
+  }, [content]);
 
   // 检查位置和遮挡
   const checkPosition = useCallback(() => {
@@ -231,8 +239,8 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
       </button>
 
       {/* 内容区域 */}
-      <div className="result-panel-content">
-        {/* 加载提示 */}
+      <div ref={contentRef} className="result-panel-content">
+        {/* 加载提示 - 没有内容时显示 */}
         {loading && !content && (
           <div className="result-panel-loading">
             <span className="loading-dots">AI 生成中</span>
@@ -250,15 +258,15 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
         {loading && content && <span className="typing-cursor">▋</span>}
       </div>
 
-      {/* 操作按钮区域 */}
-      {actions.length > 0 && !loading && (
+      {/* 操作按钮区域 - 始终显示，加载时禁用 */}
+      {actions.length > 0 && (
         <div className="result-panel-actions">
           {actions.map((action, index) => (
             <button
               key={index}
               className="result-panel-btn"
               onClick={() => action.onClick?.(inputValue)}
-              disabled={action.disabled}
+              disabled={action.disabled || loading}
             >
               {action.label}
             </button>
