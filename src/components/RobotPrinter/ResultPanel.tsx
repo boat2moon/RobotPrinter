@@ -1,25 +1,10 @@
 import React, { useState, useRef, useCallback, useEffect, forwardRef } from 'react';
 import clsx from 'clsx';
 
-import type { ActionConfig } from './menus';
+import type { ResultPanelConfig } from './types';
 
-/** 结果面板配置 */
-export interface ResultPanelConfig {
-  /** 是否显示面板 */
-  visible: boolean;
-  /** 面板内容（支持流式更新） */
-  content: string;
-  /** 是否加载中 */
-  loading: boolean;
-  /** 关闭面板回调 */
-  onClose: () => void;
-  /** 面板操作按钮 */
-  actions?: ActionConfig[];
-  /** 位置变更回调 */
-  onPlacementChange?: (placement: 'top' | 'bottom') => void;
-  /** 默认初始位置 */
-  defaultPlacement?: 'top' | 'bottom';
-}
+// 重新导出类型以保持向后兼容
+export type { ResultPanelConfig };
 
 interface ResultPanelProps extends ResultPanelConfig {
   /** 当前输入值 */

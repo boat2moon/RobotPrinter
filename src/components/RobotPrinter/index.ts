@@ -68,6 +68,7 @@ export { RobotPrinterProvider } from './context/RobotPrinterContext';
 export { useRobotPrinter, useRobotPrinterOptional } from './context/useRobotPrinter';
 
 // ============ 类型导出 ============
+// 所有类型统一从 types.ts 导出，保持单一来源
 export type {
   RobotPrinterProps,
   Position,
@@ -82,8 +83,11 @@ export type {
   AnimationPhase,
 } from './types';
 
-export type { ActionConfig as ActionConfigType } from './menus';
-export type { ResultPanelConfig as ResultPanelConfigType } from './ResultPanel';
+// 向后兼容的别名导出（已废弃，建议直接使用上方的导出）
+/** @deprecated 请直接使用 ActionConfig */
+export type { ActionConfig as ActionConfigType } from './types';
+/** @deprecated 请直接使用 ResultPanelConfig */
+export type { ResultPanelConfig as ResultPanelConfigType } from './types';
 
 // ============ Hooks 导出 ============
 export {
