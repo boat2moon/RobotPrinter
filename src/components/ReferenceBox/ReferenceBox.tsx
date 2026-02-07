@@ -94,9 +94,13 @@ export const ReferenceBox = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       let newWidth = parseInt(tempWidth) || 800;
+      const maxWidth = window.innerWidth;
       if (newWidth < 600) {
         newWidth = 600;
         setTempWidth('600');
+      } else if (newWidth > maxWidth) {
+        newWidth = maxWidth;
+        setTempWidth(String(maxWidth));
       }
       onWidthChange(newWidth); // 提交变更给父组件 (父组件应负责调用 onDock 或其他副作用)
     }
