@@ -370,8 +370,14 @@ function App() {
                 loading: result.loading,
                 source: result.source,
                 onClose: () => {
-                  handleAbort(); // 关闭时也触发终止
-                  setResult({ visible: false, content: '', loading: false, source: 'submit' });
+                  if (result.loading && result.content) {
+                    // 加载中且有内容：仅终止请求，不关闭面板
+                    handleAbort();
+                  } else {
+                    // 加载中但无内容，或非加载态：终止请求并关闭面板
+                    handleAbort();
+                    setResult({ visible: false, content: '', loading: false, source: 'submit' });
+                  }
                 },
                 actions:
                   result.source === 'summarize'
