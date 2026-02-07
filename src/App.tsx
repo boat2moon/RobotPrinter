@@ -104,9 +104,20 @@ function App() {
     }
     streamingRef.current = {};
 
-    // 只有在加载中时才显示终止提示
+    // 只有在加载中时才显示终止提示并触发频率限制
     if (loading) {
       toast.warning('请求已中止');
+      // 手动终止也触发频率限制
+      setDelay(3);
+      const countdown = setInterval(() => {
+        setDelay(prev => {
+          if (prev <= 1) {
+            clearInterval(countdown);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
     setLoading(false);
     setResult(prev => ({ ...prev, loading: false }));
