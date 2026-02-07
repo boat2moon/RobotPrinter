@@ -233,14 +233,16 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
       style={positionStyle}
       onClick={e => e.stopPropagation()}
     >
-      {/* 关闭按钮 */}
-      <button
-        className={clsx('result-panel-close', { loading })}
-        onClick={onClose}
-        title={loading ? '终止生成' : '关闭'}
-      >
-        ✕
-      </button>
+      {/* 关闭按钮 - 仅在非 glass 模式下显示 */}
+      {!isGlass && (
+        <button
+          className={clsx('result-panel-close', { loading })}
+          onClick={onClose}
+          title={loading ? '终止生成' : '关闭'}
+        >
+          ✕
+        </button>
+      )}
 
       {/* 内容区域 */}
       <div ref={contentRef} className="result-panel-content">
@@ -263,20 +265,24 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
       </div>
 
       {/* 操作按钮区域 - 始终显示，加载时禁用 */}
-      {actions.length > 0 && (
-        <div className="result-panel-actions">
-          {actions.map((action, index) => (
-            <button
-              key={index}
-              className="result-panel-btn"
-              onClick={() => action.onClick?.(inputValue)}
-              disabled={action.disabled || loading}
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="result-panel-actions">
+        {actions.map((action, index) => (
+          <button
+            key={index}
+            className="result-panel-btn"
+            onClick={() => action.onClick?.(inputValue)}
+            disabled={action.disabled || loading}
+          >
+            {action.label}
+          </button>
+        ))}
+        {/* glass 模式下的终止/关闭按钮 */}
+        {isGlass && (
+          <button className={clsx('result-panel-btn', 'close-btn', { loading })} onClick={onClose}>
+            {loading ? '终止' : '关闭'}
+          </button>
+        )}
+      </div>
     </div>
   );
 });
