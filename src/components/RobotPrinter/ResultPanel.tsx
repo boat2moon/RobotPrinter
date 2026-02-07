@@ -234,7 +234,11 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
       onClick={e => e.stopPropagation()}
     >
       {/* 关闭按钮 */}
-      <button className="result-panel-close" onClick={onClose} title="关闭">
+      <button
+        className={clsx('result-panel-close', { loading })}
+        onClick={onClose}
+        title={loading ? '终止生成' : '关闭'}
+      >
         ✕
       </button>
 

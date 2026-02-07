@@ -39,6 +39,20 @@
   color: #666;
 }
 
+/* 加载态动态效果 - 旋转动画 */
+.result-panel-close.loading {
+  animation: closeSpin 2s linear infinite;
+}
+
+@keyframes closeSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .result-panel-content {
   max-height: 200px;
   overflow-y: auto;
