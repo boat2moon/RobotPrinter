@@ -68,8 +68,13 @@
   );
   border-radius: 20px;
 
-  /* 初次出现时播放展开动画 */
-  animation: backdropExpandHeight 0.3s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  /* 高度变化使用 transition 平滑过渡，避免重复动画 */
+  transition:
+    width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    height 0.3s cubic-bezier(0.34, 1.2, 0.64, 1),
+    opacity 0.4s ease,
+    background 0.3s ease,
+    border-color 0.3s ease;
 }
 
 /* 初次高度展开动画 */
