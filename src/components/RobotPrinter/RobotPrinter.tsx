@@ -641,6 +641,7 @@ export function RobotPrinter({
         offset={paperOffset}
         paperWidth={paperWidth}
         onSummarize={onSummarize ? handleSummarize : undefined}
+        disabled={loading || delay > 0}
       />
 
       {/* 结果面板 - 纸条收起时同时隐藏 */}

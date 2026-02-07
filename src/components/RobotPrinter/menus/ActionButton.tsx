@@ -10,6 +10,8 @@ interface ActionButtonProps {
   inputValue: string;
   /** 内置总结操作回调 */
   onSummarize?: () => void;
+  /** 是否禁用 */
+  disabled?: boolean;
 }
 
 /**
@@ -54,13 +56,17 @@ export const ActionButton = memo(function ActionButton({
   action,
   inputValue,
   onSummarize,
+  disabled = false,
 }: ActionButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const hasSubActions = action.subActions && action.subActions.length > 0;
+  const isDisabled = disabled || action.disabled;
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      // 禁用时不响应
+      if (isDisabled) return;
       // 有子菜单时点击不触发，只悬停展开
       if (!hasSubActions) {
         // 处理内置操作类型
@@ -87,7 +93,7 @@ export const ActionButton = memo(function ActionButton({
         }
       }
     },
-    [hasSubActions, action, inputValue, onSummarize]
+    [hasSubActions, action, inputValue, onSummarize, isDisabled]
   );
 
   const handleMouseEnter = useCallback(() => setIsHovered(true), []);
@@ -102,7 +108,7 @@ export const ActionButton = memo(function ActionButton({
       <button
         className={`action-btn ${hasSubActions ? 'has-submenu' : ''}`}
         onClick={handleClick}
-        disabled={action.disabled}
+        disabled={isDisabled}
       >
         {action.label}
         {hasSubActions && (
@@ -126,8 +132,8 @@ export const ActionButton = memo(function ActionButton({
         )}
       </button>
 
-      {/* 二级子菜单 */}
-      {hasSubActions && isHovered && (
+      {/* 二级子菜单 - 禁用时不显示 */}
+      {hasSubActions && isHovered && !isDisabled && (
         <div className="submenu">
           {action.subActions!.map((subAction, subIndex) => (
             <SubActionButton key={subIndex} action={subAction} inputValue={inputValue} />

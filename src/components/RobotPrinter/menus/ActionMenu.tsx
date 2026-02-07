@@ -19,6 +19,8 @@ interface ActionMenuProps {
   paperWidth: number;
   /** 内置总结操作回调 */
   onSummarize?: () => void;
+  /** 是否禁用所有按钮 */
+  disabled?: boolean;
 }
 
 /**
@@ -33,6 +35,7 @@ export const ActionMenu = memo(function ActionMenu({
   offset,
   paperWidth,
   onSummarize,
+  disabled = false,
 }: ActionMenuProps) {
   if (!isVisible || actions.length === 0) {
     return null;
@@ -46,7 +49,7 @@ export const ActionMenu = memo(function ActionMenu({
 
   return (
     <div
-      className={clsx('action-menu', `direction-${direction}`)}
+      className={clsx('action-menu', `direction-${direction}`, { disabled })}
       style={positionStyle}
       onClick={e => e.stopPropagation()}
     >
@@ -56,6 +59,7 @@ export const ActionMenu = memo(function ActionMenu({
           action={action}
           inputValue={inputValue}
           onSummarize={onSummarize}
+          disabled={disabled}
         />
       ))}
     </div>

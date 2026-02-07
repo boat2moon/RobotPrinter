@@ -66,6 +66,17 @@
   cursor: not-allowed;
 }
 
+/* 整个菜单禁用状态 */
+.action-menu.disabled {
+  pointer-events: none;
+}
+
+.action-menu.disabled .action-btn {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: auto; /* 恢复以显示禁止光标 */
+}
+
 /* ========================================
    二级子菜单
    ======================================== */
