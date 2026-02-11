@@ -8,7 +8,11 @@
 
 展示页：[ai-island.boat2moon.com](https://ai-island.boat2moon.com)
 
+https://github.com/user-attachments/assets/414ebe1d-a795-4b45-aa96-c83ad024558f
+
 一个在Tiatap智能文档项目中的应用：[rumuai.top](https://www.rumuai.top)
+
+https://github.com/user-attachments/assets/5e8ac662-5d98-4956-bf72-94c3e47e4429
 
 ## ✨ 特性
 
@@ -339,6 +343,12 @@ A fun React component — **Robot Spitting Notes**!
 Perfect for AI conversations, quick commands, data processing middleware, and more. Features unique animations and interactive experiences.
 
 Demo: [www.boat2moon.com/robot-printer](https://www.boat2moon.com/robot-printer)
+
+## 📹 Demo Videos
+
+https://github.com/boat2moon/RobotPrinter/releases/download/demo-videos/DEMO1.mp4
+
+https://github.com/boat2moon/RobotPrinter/releases/download/demo-videos/DEMO2.mp4
 
 ## ✨ Features
 
