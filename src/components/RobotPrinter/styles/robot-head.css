@@ -10,6 +10,9 @@
   perspective: 400px; /* Moved here from container */
   filter: drop-shadow(var(--shadow-x, 5px) var(--shadow-y, 5px) 8px rgba(0, 0, 0, 0.2));
   transition: filter var(--rotate-duration, 400ms) ease;
+  /* 性能优化 & 修复 Firefox 渲染 artifact */
+  will-change: filter;
+  transform: translateZ(0); /* Force new stacking context */
 }
 
 .robot-head-wrapper:hover {
@@ -33,6 +36,26 @@
   transform: translateZ(20px) rotateX(var(--tilt-x, 12deg)) rotateY(var(--tilt-y, -12deg))
     rotateZ(0deg);
   transition: transform var(--rotate-duration, 400ms) cubic-bezier(0.34, 1.2, 0.64, 1);
+
+  /* 修复 Firefox 下的 3D 渲染问题 */
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* 
+ * Firefox 特定修复
+ * 
+ * 问题：Firefox 在处理 filter: drop-shadow (父级) + transform-style: preserve-3d (子级) 
+ * 且内部有动画（如眨眼）时，会触发渲染 bug 导致白块闪烁。
+ * 
+ * 解决：在 Firefox 中禁用 preserve-3d (改为 flat)，简化渲染层级。
+ * 这会使子元素（耳朵/天线）失去相对于头部的独立 3D 深度，但由于它们本身没有 Z 轴位移，
+ * 视觉效果几乎无损，却能完美解决白块问题。
+ */
+@-moz-document url-prefix() {
+  .robot-head {
+    transform-style: flat;
+  }
 }
 
 /* 头壳 */
