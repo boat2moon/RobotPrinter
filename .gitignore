@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Test coverage
+coverage
+
+# AI assistant
+.claude
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -29,3 +35,5 @@ ref.html
 
 OPTIMIZATION_PLAN*.md
 OPTIMIZATION_REPORT_FULL.md
+
+闪烁乌龙.md

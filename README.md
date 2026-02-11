@@ -23,6 +23,7 @@
 - 💬 **底部提示** - 可自定义的提示信息区域
 - 🔧 **高度可配置** - 所有功能通过 props 注入，无业务逻辑耦合
 - 💎 **Glass Mode** - 提供毛玻璃 (Glassmorphism) 风格选项，现代感十足
+  > ⚠️ **已知问题**: Glass Mode 在 Chrome/Edge 下录屏时可能出现闪烁（肉眼不可见，但录屏会显示）。这是 Chromium 渲染引擎的 [已知 Bug](https://crbug.com/483220231)，在 Firefox 和 Safari 上完全正常。详见[技术分析](https://juejin.cn/spost/7605041451327848491)。
 - 📐 **自适应布局** - 结果面板自动避让遮挡，位置参数完全可配
 
 ### 🔧 进阶配置
@@ -143,9 +144,10 @@ import { RobotPrinterErrorBoundary, RobotPrinter } from './components/RobotPrint
   )}
 >
   <RobotPrinter />
-</RobotPrinterErrorBoundary>
+</RobotPrinterErrorBoundary>;
 ```
-```
+
+````
 
 ## 📖 API 文档
 
@@ -218,7 +220,7 @@ interface ResultPanelConfig {
   actions?: ActionConfig[];
   onPlacementChange?: (placement: 'top' | 'bottom') => void;
 }
-```
+````
 
 ### 用户回调
 
@@ -351,6 +353,7 @@ Demo: [www.boat2moon.com/robot-printer](https://www.boat2moon.com/robot-printer)
 - 💬 **Info Bar** - Customizable hint area at bottom
 - 🔧 **Highly Configurable** - All features via props, no business logic coupling
 - 💎 **Glass Mode** - Provides Glassmorphism style option, modern look
+  > ⚠️ **Known Issue**: Glass Mode may flicker when screen recording in Chrome/Edge (invisible to naked eye, but visible in recordings). This is a [known Chromium bug](https://crbug.com/483220231), works perfectly in Firefox and Safari. See [technical analysis](./docs/blog-chromium-backdrop-filter-bug.md) for details.
 - 📐 **Adaptive Layout** - Result panel automatically avoids obstructions, position is fully configurable
 
 ### 🔧 Advanced Configuration
@@ -471,9 +474,10 @@ import { RobotPrinterErrorBoundary, RobotPrinter } from './components/RobotPrint
   )}
 >
   <RobotPrinter />
-</RobotPrinterErrorBoundary>
+</RobotPrinterErrorBoundary>;
 ```
-```
+
+````
 
 ## 📖 API Reference
 
@@ -546,7 +550,7 @@ interface ResultPanelConfig {
   actions?: ActionConfig[];
   onPlacementChange?: (placement: 'top' | 'bottom') => void;
 }
-```
+````
 
 ### User Callbacks
 

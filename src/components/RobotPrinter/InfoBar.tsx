@@ -1,6 +1,8 @@
 import React, { memo } from 'react';
 import clsx from 'clsx';
 
+import { useFadePlacement } from './hooks/useFadePlacement';
+
 interface InfoBarProps {
   /** 底部提示内容 */
   children: React.ReactNode;
@@ -19,6 +21,7 @@ interface InfoBarProps {
 /**
  * 底部提示信息组件
  * 显示在纸条下方，用于显示 Token 剩余、免责声明等信息
+ * 位置切换时有淡入淡出动画
  */
 export const InfoBar = memo(function InfoBar({
   children,
@@ -28,6 +31,8 @@ export const InfoBar = memo(function InfoBar({
   isVisible,
   resultPlacement = 'top',
 }: InfoBarProps) {
+  const { displayPlacement, isFading, hasFaded } = useFadePlacement(resultPlacement);
+
   if (!isVisible || !children) {
     return null;
   }
@@ -40,7 +45,13 @@ export const InfoBar = memo(function InfoBar({
 
   return (
     <div
-      className={clsx('info-bar', `direction-${direction}`, `placement-${resultPlacement}`)}
+      className={clsx(
+        'info-bar',
+        `direction-${direction}`,
+        `placement-${displayPlacement}`,
+        { 'is-fading': isFading },
+        { 'has-faded': hasFaded }
+      )}
       style={positionStyle}
       onClick={e => e.stopPropagation()}
     >

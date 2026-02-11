@@ -9,6 +9,7 @@ import { ResultPanel } from './ResultPanel';
 import { InfoBar } from './InfoBar';
 import { calculateTilt, warnOnce, warnControlledUncontrolled } from './utils';
 import { LAYOUT } from './constants';
+import { useFadePlacement } from './hooks/useFadePlacement';
 import type { Position, EyeMode, RobotPrinterProps, AnimationPhase } from './types';
 
 // 重新导出类型以保持向后兼容
@@ -91,9 +92,9 @@ export function RobotPrinter({
     };
   }, [highlightTrigger]);
 
-  // Glass mode: ResultPanel 高度追踪
+  // Glass mode: ResultPanel DOM引用 (用于直接操作样式)
+  const backdropRef = useRef<HTMLDivElement>(null);
   const resultPanelRef = useRef<HTMLDivElement>(null);
-  const [resultPanelHeight, setResultPanelHeight] = useState(0);
   const [resultPlacement, setResultPlacement] = useState<'top' | 'bottom'>('top');
 
   // Glass mode: 毛玻璃收起动画状态
@@ -101,6 +102,15 @@ export function RobotPrinter({
   const [isGlassCollapsing, setIsGlassCollapsing] = useState(false);
   const [frozenResultHeight, setFrozenResultHeight] = useState(0);
   const [frozenPlacement, setFrozenPlacement] = useState<'top' | 'bottom'>('top');
+
+  // 位置确认状态（防止 InfoBar 在 ResultPanel 位置确定前闪烁）
+  const [isPlacementReady, setIsPlacementReady] = useState(true);
+
+  // 追踪是否曾显示过 result，用于决定 ActionMenu 快速显示
+  const [hadResultPanel, setHadResultPanel] = useState(false);
+  useEffect(() => {
+    if (resultPanel) setHadResultPanel(true);
+  }, [resultPanel]);
 
   // 位置状态（仅拖拽模式使用）
   const [internalPosition, setInternalPosition] = useState<Position>(
@@ -146,6 +156,11 @@ export function RobotPrinter({
 
   // 展开动画序列
   const expandSequence = useCallback(() => {
+    // 展开开始时，如果有 result 面板，暂时认为位置未就绪，直到 ResultPanel 回调确认
+    if (resultPanel?.visible) {
+      setIsPlacementReady(false);
+    }
+
     setPhase('rotating');
 
     setTimeout(() => {
@@ -161,14 +176,16 @@ export function RobotPrinter({
         }, paperDuration);
       }, 300);
     }, rotateDuration);
-  }, [rotateDuration, paperDuration, onExpandedChange]);
+  }, [rotateDuration, paperDuration, onExpandedChange, resultPanel?.visible]);
 
   // 收起动画序列
   const collapseSequence = useCallback(() => {
     // Glass mode: 如果有 ResultPanel，先触发毛玻璃收缩动画
     if (styleMode === 'glass' && resultPanel?.visible) {
       // 冻结当前尺寸和位置，然后触发收缩动画
-      setFrozenResultHeight(resultPanelHeight);
+      // 直接读取 DOM 获取当前高度，避免使用 state 导致重渲染
+      const currentHeight = resultPanelRef.current?.offsetHeight || 0;
+      setFrozenResultHeight(currentHeight);
       setFrozenPlacement(resultPlacement);
       setIsGlassCollapsing(true);
     }
@@ -194,7 +211,6 @@ export function RobotPrinter({
     onExpandedChange,
     styleMode,
     resultPanel?.visible,
-    resultPanelHeight,
     resultPlacement,
   ]);
 
@@ -310,7 +326,7 @@ export function RobotPrinter({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, toggle]);
+  }, [isDragging, toggle, onPositionChange]);
 
   // 处理输入变化
   const handleInputChange = useCallback(
@@ -423,25 +439,51 @@ export function RobotPrinter({
   const isMouthOpen = ['mouth-opening', 'paper-out', 'expanded', 'paper-in'].includes(phase);
   const isPaperVisible = ['paper-out', 'expanded'].includes(phase);
 
-  // Glass mode: 监听 ResultPanel 高度变化
+  // Glass mode: 监听 ResultPanel 高度变化 (直接操作 DOM 避免重渲染)
+  // 使用 requestAnimationFrame 确每一帧的布局同步，消除闪烁
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (styleMode !== 'glass') return;
     const el = resultPanelRef.current;
+
+    // 如果没有元素，重置高度
     if (!el) {
-      setResultPanelHeight(0);
+      if (backdropRef.current) {
+        backdropRef.current.style.setProperty('--result-height', '0px');
+      }
       return;
     }
 
+    const updateHeight = (height: number) => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+      rafRef.current = requestAnimationFrame(() => {
+        if (backdropRef.current) {
+          // 像素取整，避免亚像素渲染导致的抖动
+          const roundedHeight = Math.round(height);
+          backdropRef.current.style.setProperty('--result-height', `${roundedHeight}px`);
+        }
+      });
+    };
+
     const observer = new ResizeObserver(entries => {
       for (const entry of entries) {
-        setResultPanelHeight(entry.contentRect.height);
+        // 使用 rAF 更新
+        updateHeight(entry.contentRect.height);
       }
     });
     observer.observe(el);
-    setResultPanelHeight(el.offsetHeight);
 
-    return () => observer.disconnect();
+    // 初始设置 (立即执行，不延迟)
+    if (backdropRef.current) {
+      backdropRef.current.style.setProperty('--result-height', `${Math.round(el.offsetHeight)}px`);
+    }
+
+    return () => {
+      observer.disconnect();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [styleMode, resultPanel, isPaperVisible]);
 
   // 转动方向（向左吐=顺时针90°，向右吐=逆时针90°）
@@ -571,10 +613,22 @@ export function RobotPrinter({
       : {}),
   } as React.CSSProperties;
 
-  // 计算有效的位置 placement：只有当 ResultPanel 显示且纸条展开时，才使用 resultPlacement
-  // 否则强制为 'top' (即默认状态，Hint 在下方)
+  // 计算有效的位置 placement：
+  // 核心规则：
+  // 1. 机器人收拢态（!isPaperVisible）时，hint 提示语始终在下方（placement='top' 表示 result 在上，提示在下）
+  // 2. 机器人展开态且有 result 面板时，根据 resultPlacement 决定
+  // 3. 机器人展开态但没有 result 面板时，提示语始终在下方
   const isResultPanelVisible = resultPanel?.visible && isPaperVisible;
-  const effectivePlacement = isResultPanelVisible ? resultPlacement : 'top';
+
+  // InfoBar 的位置：只有在展开且result可见时才跟随 resultPlacement，否则始终在下方
+  const infoBarPlacement = isResultPanelVisible ? resultPlacement : 'top';
+
+  // Hint 的位置：收拢态时始终在下方，展开态时跟随 InfoBar
+  const hintEffectivePlacement = isPaperVisible ? infoBarPlacement : 'top';
+
+  // Hint 提示文字的淡入淡出动画
+  const { displayPlacement: hintPlacement, isFading: isHintFading } =
+    useFadePlacement(hintEffectivePlacement);
 
   return (
     <div
@@ -591,6 +645,7 @@ export function RobotPrinter({
       {/* Glass Mode Background */}
       {styleMode === 'glass' && (
         <div
+          ref={backdropRef}
           className={clsx(
             'ai-island-backdrop',
             // 收起动画期间保持 expanded 和 has-result 状态，直到动画结束
@@ -599,21 +654,15 @@ export function RobotPrinter({
             { collapsing: isGlassCollapsing },
             { dark: isDark },
             `direction-${paperDirection}`,
-            // 收起时使用冻结的位置
-            `result-${isGlassCollapsing ? frozenPlacement : effectivePlacement}`
+            // 玻璃收起时使用冻结的位置，否则使用当前的 resultPlacement
+            `result-${isGlassCollapsing ? frozenPlacement : resultPlacement}`
           )}
           style={
             {
               '--paper-width': `${paperWidth}px`,
               '--paper-offset': `${paperOffset}px`,
               // 收起时使用冻结的高度
-              '--result-height': `${
-                isGlassCollapsing
-                  ? frozenResultHeight
-                  : resultPanel && isPaperVisible
-                    ? resultPanelHeight
-                    : 0
-              }px`,
+              ...(isGlassCollapsing ? { '--result-height': `${frozenResultHeight}px` } : {}),
             } as React.CSSProperties
           }
         />
@@ -642,6 +691,7 @@ export function RobotPrinter({
         paperWidth={paperWidth}
         onSummarize={onSummarize ? handleSummarize : undefined}
         disabled={loading || delay > 0}
+        quick={hadResultPanel && !resultPanel}
       />
 
       {/* 结果面板 - 纸条收起时同时隐藏 */}
@@ -656,18 +706,22 @@ export function RobotPrinter({
           paperWidth={paperWidth}
           styleMode={styleMode}
           isDark={isDark}
-          onPlacementChange={setResultPlacement}
+          onPlacementChange={placement => {
+            setResultPlacement(placement);
+            setIsPlacementReady(true);
+          }}
           defaultPlacement={resultPlacement}
         />
       )}
 
       {/* 底部提示信息 */}
+      {/* 只有在位置就绪后才显示（防止跳变），如果没有 resultPanel 则始终视为就绪 */}
       <InfoBar
         direction={paperDirection}
         offset={paperOffset}
         paperWidth={paperWidth}
-        isVisible={isPaperVisible}
-        resultPlacement={effectivePlacement}
+        isVisible={isPaperVisible && (!resultPanel?.visible || isPlacementReady)}
+        resultPlacement={infoBarPlacement}
       >
         {infoContent}
       </InfoBar>
@@ -693,7 +747,7 @@ export function RobotPrinter({
 
       {/* 提示文字 */}
       {showHint && (
-        <div className={`hint placement-${effectivePlacement}`}>
+        <div className={clsx('hint', `placement-${hintPlacement}`, { 'is-fading': isHintFading })}>
           {draggable ? '拖拽移动 / 点击展开' : '点击机器人收纳/展开'}
         </div>
       )}

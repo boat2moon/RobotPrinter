@@ -21,6 +21,8 @@ interface ActionMenuProps {
   onSummarize?: () => void;
   /** 是否禁用所有按钮 */
   disabled?: boolean;
+  /** 是否快速显示（跳过延迟） */
+  quick?: boolean;
 }
 
 /**
@@ -36,6 +38,7 @@ export const ActionMenu = memo(function ActionMenu({
   paperWidth,
   onSummarize,
   disabled = false,
+  quick = false,
 }: ActionMenuProps) {
   if (!isVisible || actions.length === 0) {
     return null;
@@ -49,7 +52,7 @@ export const ActionMenu = memo(function ActionMenu({
 
   return (
     <div
-      className={clsx('action-menu', `direction-${direction}`, { disabled })}
+      className={clsx('action-menu', `direction-${direction}`, { disabled, quick })}
       style={positionStyle}
       onClick={e => e.stopPropagation()}
     >

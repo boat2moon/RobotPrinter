@@ -50,7 +50,7 @@
 
   transition:
     width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-    height 0s,
+    height 0.2s ease-out,
     opacity 0.4s ease,
     background 0.3s ease,
     border-color 0.3s ease;
@@ -68,10 +68,10 @@
   );
   border-radius: 20px;
 
-  /* 高度变化使用 transition 平滑过渡，避免重复动画 */
+  /* 高度增长时瞬间响应，收缩时由 .expanded 的 transition 控制平滑过渡 */
   transition:
     width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-    height 0s cubic-bezier(0.34, 1.2, 0.64, 1),
+    height 0s,
     opacity 0.4s ease,
     background 0.3s ease,
     border-color 0.3s ease;

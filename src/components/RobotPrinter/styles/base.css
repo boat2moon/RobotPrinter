@@ -8,8 +8,10 @@
   align-items: center;
   height: 140px;
   padding-right: 20px;
-  perspective: 400px;
+  /* perspective moved to .robot-head-wrapper to avoid conflict with backdrop-filter */
   z-index: var(--rp-z-container, 101);
+  /* 性能优化：隔离渲染层 */
+  transform: translateZ(0);
 }
 
 /* 可拖拽模式 */
@@ -35,6 +37,13 @@
   pointer-events: none;
   letter-spacing: 0.5px;
   z-index: var(--rp-z-hint, 5);
+  /* 位置切换淡入淡出 */
+  transition: opacity 0.1s ease;
+}
+
+/* 位置切换时淡出 */
+.hint.is-fading {
+  opacity: 0 !important;
 }
 
 .robot-printer.draggable .hint {
@@ -57,6 +66,19 @@
   animation: infoBarFadeIn 0.3s ease-out forwards;
   animation-delay: var(--paper-duration, 600ms);
   z-index: var(--rp-z-action-menu, 14);
+  /* 位置切换淡入淡出 */
+  transition: opacity 0.1s ease;
+}
+
+/* 已经经历过位置切换，跳过初始动画，使用直接的 opacity */
+.info-bar.has-faded {
+  animation: none;
+  opacity: 1;
+}
+
+/* 位置切换时淡出 */
+.info-bar.is-fading {
+  opacity: 0 !important;
 }
 
 /* ========================================

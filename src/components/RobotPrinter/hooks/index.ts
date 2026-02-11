@@ -14,3 +14,4 @@ export type {
 } from './useAnimationMachine';
 export { useIdleDetection } from './useIdleDetection';
 export { useTilt } from './useTilt';
+export { useFadePlacement } from './useFadePlacement';

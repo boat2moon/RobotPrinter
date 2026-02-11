@@ -14,6 +14,11 @@
   animation-delay: var(--paper-duration, 600ms);
 }
 
+/* 从 result 返回时快速显示，无需等待 */
+.action-menu.quick {
+  animation-delay: 0.3s;
+}
+
 .action-btn-wrapper {
   position: relative;
 }

@@ -165,8 +165,16 @@ export const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(function
     if (newPlacement !== placement) {
       setPlacement(newPlacement);
       onPlacementChange?.(newPlacement);
+      isInitializedRef.current = true;
+    } else if (!isInitializedRef.current) {
+      // 首次检查，即使位置没变也通知父组件（让外部知道位置已确认）
+      onPlacementChange?.(newPlacement);
+      isInitializedRef.current = true;
     }
   }, [panelRef, placement, onPlacementChange]);
+
+  // 追踪是否已初始化通知
+  const isInitializedRef = useRef(false);
 
   // 监听 update 和 轮询检测
   useEffect(() => {
