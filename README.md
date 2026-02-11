@@ -353,7 +353,7 @@ Demo: [www.boat2moon.com/robot-printer](https://www.boat2moon.com/robot-printer)
 - 💬 **Info Bar** - Customizable hint area at bottom
 - 🔧 **Highly Configurable** - All features via props, no business logic coupling
 - 💎 **Glass Mode** - Provides Glassmorphism style option, modern look
-  > ⚠️ **Known Issue**: Glass Mode may flicker when screen recording in Chrome/Edge (invisible to naked eye, but visible in recordings). This is a [known Chromium bug](https://crbug.com/483220231), works perfectly in Firefox and Safari. See [technical analysis](./docs/blog-chromium-backdrop-filter-bug.md) for details.
+  > ⚠️ **Known Issue**: Glass Mode may flicker when screen recording in Chrome/Edge (invisible to naked eye, but visible in recordings). This is a [known Chromium bug](https://crbug.com/483220231), works perfectly in Firefox and Safari. See [technical analysis](https://juejin.cn/spost/7605041451327848491) for details.
 - 📐 **Adaptive Layout** - Result panel automatically avoids obstructions, position is fully configurable
 
 ### 🔧 Advanced Configuration
