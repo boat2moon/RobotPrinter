@@ -85,6 +85,49 @@ body.dark {
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+/* GitHub 链接按钮 */
+.github-link {
+  position: fixed;
+  top: 20px;
+  right: 80px; /* theme-toggle is at 20px, width 44px + some gap */
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(145deg, #ffffff, #e6e6e6);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 9999;
+  color: #333;
+  text-decoration: none;
+}
+
+.github-link:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: #000;
+}
+
+.app.dark .github-link {
+  background: linear-gradient(145deg, #2d2d44, #1a1a2e);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #e6edf3;
+}
+
+.app.dark .github-link:hover {
+  color: #fff;
+}
+
 /* 底部停靠区域 */
 
 /* 基准框 */
